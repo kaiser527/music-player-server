@@ -18,6 +18,7 @@ import com.kaiser.messenger_server.dto.response.UserResponse;
 import com.kaiser.messenger_server.entities.BlacklistToken;
 import com.kaiser.messenger_server.entities.Role;
 import com.kaiser.messenger_server.entities.User;
+import com.kaiser.messenger_server.enums.TokenType;
 import com.kaiser.messenger_server.exception.AppException;
 import com.kaiser.messenger_server.exception.ErrorCode;
 import com.kaiser.messenger_server.mapper.UserMapper;
@@ -34,6 +35,8 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -95,7 +98,7 @@ public class AuthService {
         return userMapper.toUserResponse(user);
     }
 
-    public AuthResponse login(AuthRequest request){
+    public AuthResponse login(AuthRequest request, HttpServletResponse response){
         User user = userRepository.findByEmail(request.getEmail()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXIST));
 
         boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPassword());
@@ -104,7 +107,14 @@ public class AuthService {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
 
-        String token = generateToken(user);
+        String token = generateToken(user, TokenType.ACCESS);
+        String refresh_token = generateToken(user, TokenType.REFRESH);
+
+        Cookie cookie = new Cookie("refresh_token", refresh_token);
+        cookie.setMaxAge((int)REFRESHABLE_DURATION);
+        cookie.setHttpOnly(true);
+
+        response.addCookie(cookie);
 
         return AuthResponse.builder()
             .token(token)
@@ -149,7 +159,7 @@ public class AuthService {
         }
     }
 
-    public AuthResponse refreshToken(String token) throws JOSEException, ParseException {
+    public AuthResponse refreshToken(String token,  HttpServletResponse response) throws JOSEException, ParseException {
         SignedJWT signToken = verifyToken(token, true);
 
         String jit = signToken.getJWTClaimsSet().getJWTID();
@@ -166,7 +176,20 @@ public class AuthService {
 
         User user = userRepository.findByEmail(email).orElseThrow(() -> new AppException(ErrorCode.UNAUTHENTICATED));
 
-        String access_token = generateToken(user);
+        String access_token = generateToken(user, TokenType.ACCESS);
+        String refresh_token = generateToken(user, TokenType.REFRESH);
+
+        Cookie deleteCookie = new Cookie("refresh_token", null);
+        deleteCookie.setMaxAge(0);
+        deleteCookie.setHttpOnly(true);
+
+        response.addCookie(deleteCookie);
+
+        Cookie cookie = new Cookie("refresh_token", refresh_token);
+        cookie.setMaxAge((int)REFRESHABLE_DURATION);
+        cookie.setHttpOnly(true);
+
+        response.addCookie(cookie);
 
         return AuthResponse.builder()
             .token(access_token)
@@ -204,7 +227,7 @@ public class AuthService {
         return signedJWT;
     }
 
-    private String generateToken(User user) {
+    private String generateToken(User user, TokenType type) {
         JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS512);
         
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
@@ -212,7 +235,10 @@ public class AuthService {
             .issuer("kaiser.com")
             .issueTime(new Date())
             .expirationTime(new Date(
-                Instant.now().plus(VALID_DURATION, ChronoUnit.SECONDS).toEpochMilli()
+                Instant
+                    .now()
+                    .plus(type == TokenType.ACCESS ? VALID_DURATION : REFRESHABLE_DURATION, ChronoUnit.SECONDS)
+                    .toEpochMilli()
             ))
             .jwtID(UUID.randomUUID().toString())
             .claim("role", user.getRole().getName())
