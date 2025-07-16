@@ -11,8 +11,8 @@ spring:
   servlet:
     multipart:
       enabled: true
-      max-file-size: 5MB
-      max-request-size: 5MB
+      max-file-size: 15MB
+      max-request-size: 15MB
 
 server:
   port: 3000
@@ -25,8 +25,11 @@ jwt:
   refreshable-duration: 604800
 
 role:
-  user: 774ef022-d02a-4f37-bdf3-54d81b6c0728
-  admin: 2a55ae87-32e1-4f5f-96ab-16680fef8354
+  user: 7ab20202-2eab-4c12-9f67-e298e149eb22
+  admin: 13f0e1fe-2c62-44a6-9c3b-12e4091c5fc5
 
 file:
   upload-dir: public/images
+
+track:
+  upload-dir: public/tracks

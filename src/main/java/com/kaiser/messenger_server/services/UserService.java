@@ -60,7 +60,7 @@ public class UserService {
     public PaginatedResponse<UserResponse> getUserPaginated(Pageable pageable){
         Page<User> userPage = userRepository.findAll(pageable);
 
-        List<UserResponse> userResponses = userPage.getContent()
+        List<UserResponse> userResponse = userPage.getContent()
             .stream()
             .map(userMapper::toUserResponse)
             .toList();
@@ -69,14 +69,14 @@ public class UserService {
             .pageNumber(userPage.getNumber() + 1)
             .pageSize(userPage.getSize())
             .totalPages(userPage.getTotalPages())
-            .data(userResponses)
+            .data(userResponse)
             .build();
     }
 
     public UserResponse updateUser(String id, UpdateUserRequest request){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        Role role = repository.findById(request.getRoleId()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXIST));
+        Role role = repository.findById(request.getRoleId()).orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXIST));
         User user = userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXIST));
 
         userMapper.toUpdateUser(user, request);

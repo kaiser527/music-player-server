@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import com.kaiser.messenger_server.dto.response.ApiResponse;
 import com.kaiser.messenger_server.dto.response.FileUploadResponse;
+import com.kaiser.messenger_server.enums.FileType;
 import com.kaiser.messenger_server.services.FileUploadService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -21,8 +22,12 @@ public class FileUploadController {
     FileUploadService fileUploadService;
 
     @PostMapping("/upload")
-    ApiResponse<FileUploadResponse> uploadFile(@RequestParam("fileUpload") MultipartFile file,  @RequestHeader(value = "folder_type", required = false) String folderType){
-        String fileName = fileUploadService.uploadFile(file, folderType);
+    ApiResponse<FileUploadResponse> uploadFileImage(
+        @RequestParam("fileUpload") MultipartFile file,  
+        @RequestHeader(value = "folder_type", required = false) String folderType,
+        @RequestParam("file_type") FileType fileType
+    ){
+        String fileName = fileUploadService.uploadFile(file, folderType, fileType);
         
         return ApiResponse.<FileUploadResponse>builder()
             .message("File uploaded successfully")

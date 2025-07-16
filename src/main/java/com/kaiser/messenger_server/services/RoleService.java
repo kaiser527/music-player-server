@@ -42,10 +42,13 @@ public class RoleService {
             throw new AppException(ErrorCode.ROLE_EXIST);
         }
 
+        request.getPermissionIds().forEach(item -> {
+            if(!permissionRepository.existsById(item)){
+                throw new AppException(ErrorCode.PERMISSION_NOT_EXIST);
+            }
+        });
+
         List<Permission> permissions = permissionRepository.findAllById(request.getPermissionIds());
-        if(permissions.size() == 0){
-            throw new AppException(ErrorCode.PERMISSION_NOT_EXIST);
-        }
 
         Role role = roleMapper.toCreateRole(request);
         
@@ -66,10 +69,13 @@ public class RoleService {
             throw new AppException(ErrorCode.ROLE_EXIST);
         }
 
+        request.getPermissionIds().forEach(item -> {
+            if(!permissionRepository.existsById(item)){
+                throw new AppException(ErrorCode.PERMISSION_NOT_EXIST);
+            }
+        });
+
         List<Permission> permissions = permissionRepository.findAllById(request.getPermissionIds());
-        if(permissions.size() == 0){
-            throw new AppException(ErrorCode.PERMISSION_NOT_EXIST);
-        }
 
         roleMapper.toUpdateRole(role, request);
 
@@ -84,7 +90,7 @@ public class RoleService {
     public PaginatedResponse<RoleResponse> getRolePaginated(Pageable page){
         Page<Role> rolePage = roleRepository.findAll(page);
 
-        List<RoleResponse> roleResponses = rolePage.getContent()
+        List<RoleResponse> roleResponse = rolePage.getContent()
             .stream()
             .map(roleMapper::toRoleResponse)
             .toList();
@@ -93,7 +99,7 @@ public class RoleService {
             .pageNumber(rolePage.getNumber() + 1)
             .pageSize(rolePage.getSize())
             .totalPages(rolePage.getTotalPages())
-            .data(roleResponses)
+            .data(roleResponse)
             .build();
     }
 

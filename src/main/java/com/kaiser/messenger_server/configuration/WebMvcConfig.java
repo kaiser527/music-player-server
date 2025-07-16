@@ -10,15 +10,23 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer{
     @Value("${file.upload-dir}")
-    private String UPLOAD_DIR ;
+    private String UPLOAD_DIR_IMAGE ;
+
+    @Value("${track.upload-dir}")
+    private String UPLOAD_DIR_TRACK ;
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         Path rootPath = Paths.get("").toAbsolutePath();
-        String imagePath = rootPath + "/" + UPLOAD_DIR + "/";
+        String imagePath = rootPath + "/" + UPLOAD_DIR_IMAGE + "/";
+        String trackPath = rootPath + "/" + UPLOAD_DIR_TRACK + "/";
         
         registry.addResourceHandler("/images/**")
                 .addResourceLocations("file:" + imagePath)
+                .setCachePeriod(0); // Disable cache for development
+
+        registry.addResourceHandler("/tracks/**")
+                .addResourceLocations("file:" + trackPath)
                 .setCachePeriod(0); // Disable cache for development
     }
 }

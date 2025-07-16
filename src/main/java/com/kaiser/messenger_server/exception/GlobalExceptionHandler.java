@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Objects;
 import jakarta.validation.ConstraintViolation;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -21,7 +22,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(ErrorCode.UNCATEGORZIED_EXCEPTION.getStatusCode())
                 .body(ApiResponse.builder()
                         .code(ErrorCode.UNCATEGORZIED_EXCEPTION.getCode())
-                        .message(exception.getMessage())
+                        .message(ErrorCode.UNCATEGORZIED_EXCEPTION.getMessage())
+                        .build());
+    }
+
+    @ExceptionHandler(value = AccessDeniedException.class)
+    ResponseEntity<ApiResponse<?>> handlingAccessDeniedException(AccessDeniedException exception) {
+        return ResponseEntity.status(ErrorCode.ACCESS_DENIED.getStatusCode())
+                .body(ApiResponse.builder()
+                        .code(ErrorCode.ACCESS_DENIED.getCode())
+                        .message(ErrorCode.ACCESS_DENIED.getMessage())
                         .build());
     }
 

@@ -6,10 +6,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartFile;
+import com.kaiser.messenger_server.enums.FileType;
 import com.kaiser.messenger_server.exception.AppException;
 import com.kaiser.messenger_server.exception.ErrorCode;
 import lombok.AccessLevel;
@@ -21,22 +23,30 @@ import lombok.experimental.NonFinal;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PACKAGE, makeFinal = true)
 public class FileUploadService {
-    List<String> ALLOWED_EXTENSIONS = Arrays.asList("jpg", "jpeg", "png");
-    long MAX_FILE_SIZE = 5 * 1024 * 1024;
+    Map<FileType, List<String>> ALLOWED_EXTENSIONS = Map.of(
+        FileType.IMAGE, Arrays.asList("jpg", "jpeg", "png"),
+        FileType.TRACK, Arrays.asList("mp3", "wav", "ogg")
+    );
+    long MAX_FILE_SIZE_IMAGE = 5 * 1024 * 1024;
+    long MAX_FILE_SIZE_TRACK = 15 * 1024 * 1024;
 
     @Value("${file.upload-dir}")
     @NonFinal
-    private String UPLOAD_DIR ;
+    private String UPLOAD_DIR_IMAGE ;
 
-    public String uploadFile(MultipartFile file, String folderType) {
+    @Value("${track.upload-dir}")
+    @NonFinal
+    private String UPLOAD_DIR_TRACK ;
+
+    public String uploadFile(MultipartFile file, String folderType, FileType type) {
         // Validate file type
-        validateFileType(file.getOriginalFilename());
+        validateFileType(file.getOriginalFilename(), type);
         
         // Validate file size
-        validateFileSize(file.getSize());
+        validateFileSize(file.getSize(), type);
         
         // Prepare upload directory
-        String uploadPath = prepareUploadDirectory(folderType);
+        String uploadPath = prepareUploadDirectory(folderType, type);
         
         // Generate unique filename
         String finalName = generateUniqueFilename(file.getOriginalFilename());
@@ -47,26 +57,28 @@ public class FileUploadService {
         return finalName;
     }
 
-    private void validateFileType(String filename) {
-        if (filename == null || !filename.contains(".")) {
+    private void validateFileType(String filename, FileType type) {
+        if (filename == null || filename.isEmpty() || !filename.contains(".")) {
             throw new AppException(ErrorCode.INVALID_FILE_NAME);
         }
         
         String extension = filename.substring(filename.lastIndexOf(".") + 1).toLowerCase();
-        if (!ALLOWED_EXTENSIONS.contains(extension)) {
+        if (!ALLOWED_EXTENSIONS.get(type).contains(extension)) {
             throw new AppException(ErrorCode.INVALID_FILE_TYPE);
         }
     }
 
-    private void validateFileSize(long size) {
-        if (size > MAX_FILE_SIZE) {
-            throw new MaxUploadSizeExceededException(MAX_FILE_SIZE);
+    private void validateFileSize(long size, FileType type) {
+        long validSize = type == FileType.IMAGE ? MAX_FILE_SIZE_IMAGE : MAX_FILE_SIZE_TRACK;
+        if (size > validSize) {
+            throw new MaxUploadSizeExceededException(validSize);
         }
     }
 
-    private String prepareUploadDirectory(String folderType) {
+    private String prepareUploadDirectory(String folderType, FileType type) {
         String folder = folderType != null ? folderType : "default";
-        String uploadPath = System.getProperty("user.dir") + "/" + UPLOAD_DIR + "/" + folder;
+        String baseDir = type == FileType.IMAGE ? UPLOAD_DIR_IMAGE : UPLOAD_DIR_TRACK;
+        String uploadPath = System.getProperty("user.dir") + "/" + baseDir + "/" + folder;
         
         try {
             Files.createDirectories(Paths.get(uploadPath));

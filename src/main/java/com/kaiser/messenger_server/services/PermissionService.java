@@ -63,7 +63,7 @@ public class PermissionService {
     public PaginatedResponse<PermissionResponse> getPermissionPaginated(Pageable pageable){
         Page<Permission> permissionPage = permissionRepository.findAll(pageable);
 
-        List<PermissionResponse> permissionResponses = permissionPage.getContent()
+        List<PermissionResponse> permissionResponse = permissionPage.getContent()
             .stream()
             .map(permissionMapper::toPermissionResponse)
             .toList();
@@ -72,7 +72,7 @@ public class PermissionService {
             .pageNumber(permissionPage.getNumber() + 1)
             .pageSize(permissionPage.getSize())
             .totalPages(permissionPage.getTotalPages())
-            .data(permissionResponses)
+            .data(permissionResponse)
             .build();
     }
 

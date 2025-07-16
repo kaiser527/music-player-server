@@ -1,6 +1,7 @@
 package com.kaiser.messenger_server.entities;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -50,4 +51,12 @@ public class User {
 
     @ManyToOne
     Role role;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    @EqualsAndHashCode.Exclude
+    Set<Track> track;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    @EqualsAndHashCode.Exclude
+    Set<Playlist> playlist;
 }

@@ -23,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final String[] PUBLIC_ENDPOINTS_POST = {"/auth/login", "/auth/register"};
-    private final String[] PUBLIC_ENDPOINTS_GET = {"/images/**"};
+    private final String[] PUBLIC_ENDPOINTS_GET = {"/images/**", "/tracks/**", "/track/**", "/playlist/**"};
 
     @Value("${jwt.signerKey}")
     private String signerKey;

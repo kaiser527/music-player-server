@@ -1,6 +1,7 @@
 package com.kaiser.messenger_server.dto.response;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,4 +32,8 @@ public class UserResponse {
     LocalDateTime updatedAt;
 
     RoleResponse role;
+
+    Set<TrackUserResponse> track;
+
+    Set<PlaylistResponse> playlist;
 }

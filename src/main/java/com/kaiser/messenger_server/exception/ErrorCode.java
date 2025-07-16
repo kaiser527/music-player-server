@@ -29,7 +29,12 @@ public enum ErrorCode {
     INVALID_FILE_NAME(1016,"Invalid file name", HttpStatus.BAD_REQUEST),
     INVALID_FILE_TYPE(1017,"Invalid file type", HttpStatus.BAD_REQUEST),
     FAILED_TO_CREATE_DIRECTORY(1018,"Failed to create upload directory", HttpStatus.BAD_REQUEST),
-    FAILED_TO_SAVE_FILE(1019,"Failed to save file", HttpStatus.BAD_REQUEST)
+    FAILED_TO_SAVE_FILE(1019,"Failed to save file", HttpStatus.BAD_REQUEST),
+    PLAYLIST_EXIST(1020,"Playlist is already exist", HttpStatus.BAD_REQUEST),
+    PLAYLIST_NOT_EXIST(1021,"Playlist is not exist", HttpStatus.BAD_REQUEST),
+    TRACK_EXIST(1022,"Track is already exist", HttpStatus.BAD_REQUEST),
+    TRACK_NOT_EXIST(1023,"Track is not exist", HttpStatus.BAD_REQUEST),
+    ACCESS_DENIED(1024,"You are not permitted to access this endpoint", HttpStatus.FORBIDDEN),
     ;
 
     int code;

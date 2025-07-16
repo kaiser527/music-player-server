@@ -54,6 +54,7 @@ public class UserController {
     @PreAuthorize("@customPermissionEvaluator.hasPermission('/api/v1/user/:id', 'PATCH')")
     ApiResponse<UserResponse> updateUser(@PathVariable("id") String id, @RequestBody @Valid UpdateUserRequest request){
         return ApiResponse.<UserResponse>builder()
+            .message("Update user")
             .result(userService.updateUser(id, request))
             .build();
     }
@@ -62,6 +63,7 @@ public class UserController {
     @PreAuthorize("@customPermissionEvaluator.hasPermission('/api/v1/user/:id', 'DELETE')")
     ApiResponse<UserResponse> deleteUser(@PathVariable("id") String id){
         return ApiResponse.<UserResponse>builder()
+            .message("Delete user")
             .result(userService.deleteUser(id))
             .build();
     }
