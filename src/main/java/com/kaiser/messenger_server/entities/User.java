@@ -1,6 +1,7 @@
 package com.kaiser.messenger_server.entities;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.Set;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -34,6 +35,10 @@ public class User {
 
     @NonNull
     Boolean isActive;
+
+    String codeId;
+
+    Date codeExpire;
 
     @NonNull
     @Enumerated(EnumType.STRING)

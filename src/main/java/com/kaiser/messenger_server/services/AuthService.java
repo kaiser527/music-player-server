@@ -103,11 +103,15 @@ public class AuthService {
 
         boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPassword());
 
-        if(!authenticated || user.getIsActive() == false) {
+        if(!authenticated) {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
 
-        String token = generateToken(user, TokenType.ACCESS);
+        if(user.getIsActive() == false){
+            throw new AppException(ErrorCode.ACCOUNT_NOT_ACTIVATED);
+        }
+
+        String access_token = generateToken(user, TokenType.ACCESS);
         String refresh_token = generateToken(user, TokenType.REFRESH);
 
         Cookie cookie = new Cookie("refresh_token", refresh_token);
@@ -117,7 +121,8 @@ public class AuthService {
         response.addCookie(cookie);
 
         return AuthResponse.builder()
-            .token(token)
+            .access_token(access_token)
+            .refresh_token(refresh_token)
             .isAuthenticated(authenticated)
             .user(userMapper.toUserResponse(user))
             .build();
@@ -152,7 +157,7 @@ public class AuthService {
                 .id(jit)
                 .expiryTime(expiryTime)
                 .build();
-    
+                
             blacklistTokenRepository.save(blacklistToken);
         } catch (AppException e) {
             log.info("Token is already expired");
@@ -169,8 +174,9 @@ public class AuthService {
             .id(jit)
             .expiryTime(expiryTime)
             .build();
-    
-        blacklistTokenRepository.save(blacklistToken);
+        
+        if(signToken.getJWTClaimsSet().getClaim("type").equals(TokenType.ACCESS.toString()))
+            blacklistTokenRepository.save(blacklistToken);
 
         String email = signToken.getJWTClaimsSet().getSubject();
 
@@ -192,7 +198,7 @@ public class AuthService {
         response.addCookie(cookie);
 
         return AuthResponse.builder()
-            .token(access_token)
+            .access_token(access_token)
             .isAuthenticated(true)
             .user(userMapper.toUserResponse(user))
             .build();
@@ -235,13 +241,13 @@ public class AuthService {
             .issuer("kaiser.com")
             .issueTime(new Date())
             .expirationTime(new Date(
-                Instant
-                    .now()
+                Instant.now()
                     .plus(type == TokenType.ACCESS ? VALID_DURATION : REFRESHABLE_DURATION, ChronoUnit.SECONDS)
                     .toEpochMilli()
             ))
             .jwtID(UUID.randomUUID().toString())
             .claim("role", user.getRole().getName())
+            .claim("type", type)
             .build();
 
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());

@@ -585,6 +585,56 @@ public class ApplicationInitConfig {
                             .contains(item.getTitle()))
                         .collect(Collectors.toSet()))
                     .build());
+
+                playlistRepository.save(Playlist.builder()
+                    .name("My favorite songs")
+                    .user(ryan)
+                    .track(tracks.stream()
+                        .filter(item -> Set.of(
+                            "As You Fade Away",
+                            "Take Me Back",
+                            "Anxiety"
+                        )
+                            .contains(item.getTitle()))
+                        .collect(Collectors.toSet()))
+                    .build());
+
+                playlistRepository.save(Playlist.builder()
+                    .name("My hated songs")
+                    .user(ryan)
+                    .track(tracks.stream()
+                        .filter(item -> Set.of(
+                            "Desert Brawl",
+                            "Sunny Days"
+                        )
+                            .contains(item.getTitle()))
+                        .collect(Collectors.toSet()))
+                    .build());
+
+                playlistRepository.save(Playlist.builder()
+                    .name("Demo playlist")
+                    .user(neffex)
+                    .track(tracks.stream()
+                        .filter(item -> Set.of(
+                            "Guess I'll Never Know",
+                            "Cattle",
+                            "El Secreto"
+                        )
+                            .contains(item.getTitle()))
+                        .collect(Collectors.toSet()))
+                    .build());
+
+                playlistRepository.save(Playlist.builder()
+                    .name("Test playlist")
+                    .user(neffex)
+                    .track(tracks.stream()
+                        .filter(item -> Set.of(
+                            "Desert Brawl",
+                            "Sunny Days"
+                        )
+                            .contains(item.getTitle()))
+                        .collect(Collectors.toSet()))
+                    .build());
             }
         };
     }
