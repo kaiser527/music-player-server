@@ -36,6 +36,8 @@ public enum ErrorCode {
     TRACK_NOT_EXIST(1023,"Track is not exist", HttpStatus.BAD_REQUEST),
     ACCESS_DENIED(1024,"You are not permitted to access this endpoint", HttpStatus.FORBIDDEN),
     ACCOUNT_NOT_ACTIVATED(1025,"Your account is not activated", HttpStatus.BAD_REQUEST),
+    SEND_MAIL_FAILED(1026,"Failed to send email", HttpStatus.BAD_REQUEST),
+    CODE_INVALID(1027,"Your code is expired or invalid", HttpStatus.BAD_REQUEST),
     ;
 
     int code;

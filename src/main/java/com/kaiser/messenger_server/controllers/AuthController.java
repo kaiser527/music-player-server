@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.kaiser.messenger_server.dto.request.AuthRequest;
 import com.kaiser.messenger_server.dto.request.CreateUserRequest;
+import com.kaiser.messenger_server.dto.request.VerifyUserRequest;
 import com.kaiser.messenger_server.dto.response.ApiResponse;
 import com.kaiser.messenger_server.dto.response.AuthResponse;
 import com.kaiser.messenger_server.dto.response.UserResponse;
@@ -73,8 +74,27 @@ public class AuthController {
         UserResponse result = authService.register(request);
 
         return ApiResponse.<UserResponse>builder()
-            .message("Register")
+            .message("Register user")
             .result(result)
+            .build();
+    }
+
+    @PostMapping("/verify")
+    ApiResponse<UserResponse> verifyCode(@RequestBody @Valid VerifyUserRequest request){
+        UserResponse result = authService.verifyUser(request);
+
+        return ApiResponse.<UserResponse>builder()
+            .message("Verify user")
+            .result(result)
+            .build();
+    }
+
+    @PostMapping("/resend")
+    ApiResponse<Void> resendCode(@RequestBody @Valid VerifyUserRequest request){
+        authService.resendCode(request);
+
+        return ApiResponse.<Void>builder()
+            .message("Resend verify code")
             .build();
     }
 }

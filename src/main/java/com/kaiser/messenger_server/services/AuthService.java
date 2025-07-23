@@ -4,6 +4,9 @@ import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Random;
+import java.util.Set;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -12,6 +15,7 @@ import org.springframework.stereotype.Service;
 import com.kaiser.messenger_server.dto.request.AuthRequest;
 import com.kaiser.messenger_server.dto.request.CreateUserRequest;
 import com.kaiser.messenger_server.dto.request.IntrospectRequest;
+import com.kaiser.messenger_server.dto.request.VerifyUserRequest;
 import com.kaiser.messenger_server.dto.response.AuthResponse;
 import com.kaiser.messenger_server.dto.response.IntrospectResponse;
 import com.kaiser.messenger_server.dto.response.UserResponse;
@@ -54,22 +58,27 @@ public class AuthService {
     BlacklistTokenRepository blacklistTokenRepository;
     UserMapper userMapper;
     RoleRepository roleRepository;
+    EmailService emailService;
     
     @NonFinal
     @Value("${jwt.signerKey}")
-    protected String SIGNER_KEY;
+    String SIGNER_KEY;
 
     @NonFinal
     @Value("${jwt.valid-duration}")
-    protected long VALID_DURATION;
+    long VALID_DURATION;
 
     @NonFinal
     @Value("${jwt.refreshable-duration}")
-    protected long REFRESHABLE_DURATION;
+    long REFRESHABLE_DURATION;
 
     @NonFinal
     @Value("${role.user}")
-    protected String USER_ROLE;
+    String USER_ROLE;
+
+    private Set<String> generatedCodes = new HashSet<>();
+
+    private Random random = new Random();
 
     public IntrospectResponse introspect (IntrospectRequest request) throws JOSEException, ParseException {
         String token = request.getToken();
@@ -140,10 +149,45 @@ public class AuthService {
         user.setRole(role);
         user.setCreatedBy("system");
         user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setCodeId(generateCode());
+
+        emailService.sendTemplateEmail(user.getEmail(), user.getCodeId(), "Welcome to Kaiser Musi App! Confirm your Email");
+
+        user.setCodeExpire(new Date(Instant.now().plus(5, ChronoUnit.MINUTES).toEpochMilli()));
 
         userRepository.save(user);
 
         return userMapper.toUserResponse(user);
+    }
+
+    public UserResponse verifyUser(VerifyUserRequest request){
+        User user = userRepository.findByEmail(request.getEmail()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXIST));
+
+        boolean check = 
+            user.getCodeId().equals(request.getCodeId()) &&
+            user.getCodeExpire().after(new Date());
+
+        if(!check){
+            throw new AppException(ErrorCode.CODE_INVALID);
+        }
+
+        user.setIsActive(true);
+
+        userRepository.save(user);
+
+        return userMapper.toUserResponse(user);
+    }
+
+    public void resendCode(VerifyUserRequest request){
+        User user = userRepository.findByEmail(request.getEmail()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXIST));
+
+        user.setCodeId(generateCode());
+        
+        emailService.sendTemplateEmail(user.getEmail(), user.getCodeId(), "Welcome to Kaiser Musi App! Confirm your Email");
+
+        user.setCodeExpire(new Date(Instant.now().plus(5, ChronoUnit.MINUTES).toEpochMilli()));
+
+        userRepository.save(user);
     }
 
     public void logout(String token) throws JOSEException, ParseException {
@@ -260,5 +304,20 @@ public class AuthService {
         }catch(JOSEException e){
             throw new RuntimeException(e);
         }
+    }
+
+    private synchronized String generateCode(){
+        if (generatedCodes.size() >= 1_000_000) {
+            throw new IllegalStateException("All 6-digit codes exhausted.");
+        }
+
+        String code;
+        do {
+            code = String.format("%06d", random.nextInt(1_000_000)); // "000000" to "999999"
+        } while (generatedCodes.contains(code));
+
+        generatedCodes.add(code);
+
+        return code;
     }
 }

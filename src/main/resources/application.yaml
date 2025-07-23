@@ -13,6 +13,17 @@ spring:
       enabled: true
       max-file-size: 15MB
       max-request-size: 15MB
+  mail:
+    host: smtp.gmail.com
+    password: bxzk wzsc vdnk wldk
+    username: minh.hacker89@gmail.com
+    port: 587
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
 server:
   port: 3000
@@ -25,8 +36,8 @@ jwt:
   refreshable-duration: 604800
 
 role:
-  user: f1519cdd-4b96-45bb-bfcf-5556ebab50ee
-  admin: 1f99c255-a5b9-4f66-99de-5fac6febe6ee
+  user: 8ff75f03-f52e-418e-b339-71e2ffb4e215
+  admin: 8c0241a8-0f98-4495-94fa-86f47be8d422
 
 file:
   upload-dir: public/images

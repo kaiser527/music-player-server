@@ -33,7 +33,7 @@ public class RoleService {
 
     @NonFinal
     @Value("${role.admin}")
-    protected String ADMIN_ROLE;
+    String ADMIN_ROLE;
 
     public RoleResponse createRole(RoleRequest request){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

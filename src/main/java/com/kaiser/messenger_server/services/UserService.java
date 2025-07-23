@@ -35,7 +35,7 @@ public class UserService {
 
     @NonFinal
     @Value("${role.admin}")
-    protected String ADMIN_ROLE;
+    String ADMIN_ROLE;
 
     public UserResponse createUser(CreateUserRequest request){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
