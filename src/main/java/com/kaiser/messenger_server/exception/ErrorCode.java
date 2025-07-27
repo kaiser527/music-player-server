@@ -38,6 +38,8 @@ public enum ErrorCode {
     ACCOUNT_NOT_ACTIVATED(1025,"Your account is not activated", HttpStatus.BAD_REQUEST),
     SEND_MAIL_FAILED(1026,"Failed to send email", HttpStatus.BAD_REQUEST),
     CODE_INVALID(1027,"Your code is expired or invalid", HttpStatus.BAD_REQUEST),
+    ACCOUNT_ACTIVATED(1028,"Account is already activated", HttpStatus.BAD_REQUEST),
+    PASSWORD_NOT_MATCH(1029,"Password and confirm password not match", HttpStatus.BAD_REQUEST),
     ;
 
     int code;

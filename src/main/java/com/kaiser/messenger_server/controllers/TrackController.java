@@ -30,9 +30,9 @@ public class TrackController {
     TrackService trackService;
 
     @GetMapping
-    ApiResponse<PaginatedResponse<TrackResponse>> getTrackPaginated(@RequestParam int pageSize, @RequestParam int pageNumber){
+    ApiResponse<PaginatedResponse<TrackResponse>> getTrackPaginated(@RequestParam int pageSize, @RequestParam int pageNumber, @RequestParam String title){
         Pageable pageable = PageRequest.of(pageNumber - 1, pageSize);
-        PaginatedResponse<TrackResponse> result = trackService.getTrackPaginated(pageable);
+        PaginatedResponse<TrackResponse> result = trackService.getTrackPaginated(title, pageable);
 
         return ApiResponse.<PaginatedResponse<TrackResponse>>builder()
             .message("Fetch track paginate")

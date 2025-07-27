@@ -8,10 +8,12 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class VerifyUserRequest {
-    String email;
-
+public class ForgotPasswordRequest {
     String codeId;
 
-    Boolean isForgot;
+    String password;
+
+    String confirmPassword;
+
+    String email;
 }

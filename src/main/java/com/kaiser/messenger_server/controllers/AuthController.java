@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.kaiser.messenger_server.dto.request.AuthRequest;
 import com.kaiser.messenger_server.dto.request.CreateUserRequest;
+import com.kaiser.messenger_server.dto.request.ForgotPasswordRequest;
 import com.kaiser.messenger_server.dto.request.VerifyUserRequest;
 import com.kaiser.messenger_server.dto.response.ApiResponse;
 import com.kaiser.messenger_server.dto.response.AuthResponse;
@@ -95,6 +96,16 @@ public class AuthController {
 
         return ApiResponse.<Void>builder()
             .message("Resend verify code")
+            .build();
+    }
+
+    @PostMapping("/forgot")
+    ApiResponse<UserResponse> forgotPassword(@RequestBody @Valid ForgotPasswordRequest request){
+        UserResponse result = authService.forgotPassword(request);
+
+        return ApiResponse.<UserResponse>builder()
+            .message("Reset user password")
+            .result(result)
             .build();
     }
 }

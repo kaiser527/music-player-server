@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.kaiser.messenger_server.dto.request.AuthRequest;
 import com.kaiser.messenger_server.dto.request.CreateUserRequest;
+import com.kaiser.messenger_server.dto.request.ForgotPasswordRequest;
 import com.kaiser.messenger_server.dto.request.IntrospectRequest;
 import com.kaiser.messenger_server.dto.request.VerifyUserRequest;
 import com.kaiser.messenger_server.dto.response.AuthResponse;
@@ -181,6 +182,10 @@ public class AuthService {
     public void resendCode(VerifyUserRequest request){
         User user = userRepository.findByEmail(request.getEmail()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXIST));
 
+        if(user.getIsActive() && !request.getIsForgot()){
+            throw new AppException(ErrorCode.ACCOUNT_ACTIVATED);
+        }
+
         user.setCodeId(generateCode());
         
         emailService.sendTemplateEmail(user.getEmail(), user.getCodeId(), "Welcome to Kaiser Musi App! Confirm your Email");
@@ -188,6 +193,32 @@ public class AuthService {
         user.setCodeExpire(new Date(Instant.now().plus(5, ChronoUnit.MINUTES).toEpochMilli()));
 
         userRepository.save(user);
+    }
+
+    public UserResponse forgotPassword(ForgotPasswordRequest request){
+        User user = userRepository.findByEmail(request.getEmail()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXIST));
+
+        if(!user.getIsActive()){
+            throw new AppException(ErrorCode.ACCOUNT_NOT_ACTIVATED);
+        }
+
+        if(!request.getPassword().equals(request.getConfirmPassword())){
+            throw new AppException(ErrorCode.PASSWORD_NOT_MATCH);
+        }
+
+        boolean check = 
+            user.getCodeId().equals(request.getCodeId()) &&
+            user.getCodeExpire().after(new Date());
+
+        if(!check){
+            throw new AppException(ErrorCode.CODE_INVALID);
+        }
+
+        user.setPassword(passwordEncoder.encode(request.getConfirmPassword()));
+
+        userRepository.save(user);
+
+        return userMapper.toUserResponse(user);
     }
 
     public void logout(String token) throws JOSEException, ParseException {

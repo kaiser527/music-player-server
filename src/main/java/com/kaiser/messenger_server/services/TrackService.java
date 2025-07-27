@@ -28,8 +28,10 @@ public class TrackService {
     TrackMapper trackMapper;
     UserRepository userRepository;
 
-    public PaginatedResponse<TrackResponse> getTrackPaginated(Pageable pageable){
-        Page<Track> trackPage = trackRepository.findAll(pageable);
+    public PaginatedResponse<TrackResponse> getTrackPaginated(String title, Pageable pageable){
+        Page<Track> trackPage = title.length() != 0 ? 
+            trackRepository.findByTitleContainingIgnoreCase(title, pageable) :
+            trackRepository.findAll(pageable);
 
         List<TrackResponse> playlistReponse = trackPage.getContent()
             .stream()
