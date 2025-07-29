@@ -18,6 +18,8 @@ public interface UserMapper {
     @Mapping(target = "role", ignore = true)
     @Mapping(target = "track", ignore = true)
     @Mapping(target = "playlist", ignore = true)
+    @Mapping(target = "codeExpire", ignore = true)
+    @Mapping(target = "codeId", ignore = true)
     User toCreateUser(CreateUserRequest request);
     
     UserResponse toUserResponse(User user);
@@ -32,5 +34,7 @@ public interface UserMapper {
     @Mapping(target = "role", ignore = true)
     @Mapping(target = "track", ignore = true)
     @Mapping(target = "playlist", ignore = true)
+    @Mapping(target = "codeExpire", ignore = true)
+    @Mapping(target = "codeId", ignore = true)
     void toUpdateUser(@MappingTarget User user, UpdateUserRequest request);
 }

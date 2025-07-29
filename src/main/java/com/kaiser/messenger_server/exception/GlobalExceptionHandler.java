@@ -2,6 +2,7 @@ package com.kaiser.messenger_server.exception;
 
 import java.util.Map;
 import java.util.Objects;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.ConstraintViolation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -18,7 +19,16 @@ public class GlobalExceptionHandler {
     private static final String MIN_ATTRIBUTE = "min";
 
     @ExceptionHandler(value = Exception.class)
-    ResponseEntity<ApiResponse<?>> handlingRuntimeException(RuntimeException exception) {
+    ResponseEntity<?> handlingRuntimeException(HttpServletResponse response, Exception exception) {
+        log.error("Unhandled exception caught: ", exception);
+
+        String contentType = response.getContentType();
+
+        if (contentType != null && contentType.startsWith("audio/")) {
+                // Just set status code, no body (Spring will fail to serialize otherwise)
+                return ResponseEntity.status(ErrorCode.UNCATEGORZIED_EXCEPTION.getStatusCode()).build();
+        }
+
         return ResponseEntity.status(ErrorCode.UNCATEGORZIED_EXCEPTION.getStatusCode())
                 .body(ApiResponse.builder()
                         .code(ErrorCode.UNCATEGORZIED_EXCEPTION.getCode())
