@@ -31,7 +31,7 @@ public class UserService {
     UserRepository userRepository;
     UserMapper userMapper;
     PasswordEncoder passwordEncoder;
-    RoleRepository repository;
+    RoleRepository roleRepository;
 
     @NonFinal
     @Value("${role.admin}")
@@ -44,7 +44,7 @@ public class UserService {
             throw new AppException(ErrorCode.USER_EXISTED);
         }
 
-        Role role = repository.findById(request.getRoleId()).orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXIST));
+        Role role = roleRepository.findById(request.getRoleId()).orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXIST));
         User user = userMapper.toCreateUser(request);
 
         user.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -76,7 +76,7 @@ public class UserService {
     public UserResponse updateUser(String id, UpdateUserRequest request){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        Role role = repository.findById(request.getRoleId()).orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXIST));
+        Role role = roleRepository.findById(request.getRoleId()).orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXIST));
         User user = userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXIST));
 
         userMapper.toUpdateUser(user, request);
@@ -99,5 +99,22 @@ public class UserService {
         userRepository.delete(user);
 
         return userMapper.toUserResponse(user);
+    }
+
+    public PaginatedResponse<UserResponse> getArtistPaginate(Pageable pageable, String username){
+        Role role = roleRepository.findByName("ARTIST").orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXIST));
+        Page<User> userPage = userRepository.findByRoleAndUsernameContainingIgnoreCase(role, username, pageable);     
+
+        List<UserResponse> userResponse = userPage.getContent()
+            .stream()
+            .map(userMapper::toUserResponse)
+            .toList();
+
+        return PaginatedResponse.<UserResponse>builder()
+            .pageNumber(userPage.getNumber() + 1)
+            .pageSize(userPage.getSize())
+            .totalPages(userPage.getTotalPages())
+            .data(userResponse)
+            .build();
     }
 }

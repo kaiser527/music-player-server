@@ -67,4 +67,14 @@ public class UserController {
             .result(userService.deleteUser(id))
             .build();
     }
+
+    @GetMapping("/artist")
+    ApiResponse<PaginatedResponse<UserResponse>> getArtistPaginate(@RequestParam int pageSize, @RequestParam int pageNumber, @RequestParam String username){
+        Pageable pageable = PageRequest.of(pageNumber - 1, pageSize);
+
+        return ApiResponse.<PaginatedResponse<UserResponse>>builder()
+            .message("Fetch artist paginate")
+            .result(userService.getArtistPaginate(pageable, username))
+            .build();
+    }
 }

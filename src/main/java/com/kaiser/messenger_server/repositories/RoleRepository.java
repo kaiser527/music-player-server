@@ -12,6 +12,8 @@ public interface RoleRepository extends JpaRepository<Role, String> {
 
     boolean existsByNameAndIdNot(String name, String id);
 
+    Optional<Role> findByName(String name);
+
     @EntityGraph(attributePaths = {"permission"})
-    Optional<Role> findWithPermissionsById(String id);
+    Optional<Role> findWithPermissionById(String id);
 }
