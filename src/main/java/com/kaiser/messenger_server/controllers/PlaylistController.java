@@ -1,7 +1,9 @@
 package com.kaiser.messenger_server.controllers;
 
+import java.util.List;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -39,6 +41,7 @@ public class PlaylistController {
     }
 
     @GetMapping
+    @PreAuthorize("@customPermissionEvaluator.hasPermission('/api/v1/playlist', 'GET')")
     ApiResponse<PaginatedResponse<PlaylistResponse>> getPlaylistPaginated(@RequestParam int pageSize, @RequestParam int pageNumber){
         Pageable pageable = PageRequest.of(pageNumber - 1, pageSize);
         PaginatedResponse<PlaylistResponse> result = playlistService.getPlaylistPaginated(pageable);
@@ -65,6 +68,16 @@ public class PlaylistController {
 
         return ApiResponse.<PlaylistResponse>builder()
             .message("Delete playlist")
+            .result(result)
+            .build();
+    }
+
+    @GetMapping("/global")
+    ApiResponse<List<PlaylistResponse>> getGlobalPlaylist(){
+        List<PlaylistResponse> result = playlistService.getGlobalPlaylist();
+    
+        return ApiResponse.<List<PlaylistResponse>>builder()
+            .message("get global playlist")
             .result(result)
             .build();
     }

@@ -96,4 +96,14 @@ public class PlaylistService {
 
         return playlistMapper.toPlaylistResponse(playlist);
     }
+
+    public List<PlaylistResponse> getGlobalPlaylist(){
+        List<Playlist> playlists = playlistRepository.findByUser(null);
+
+        List<PlaylistResponse> playlistResponses = playlists.stream()
+            .map(playlistMapper::toPlaylistResponse)
+            .toList();
+
+        return playlistResponses;
+    }
 }
