@@ -81,4 +81,15 @@ public class PlaylistController {
             .result(result)
             .build();
     }
+
+    @GetMapping("/user")
+    ApiResponse<PaginatedResponse<PlaylistResponse>> getUserPlaylist(@RequestParam int pageSize, @RequestParam int pageNumber, @RequestParam String name){
+        Pageable pageable = PageRequest.of(pageNumber - 1, pageSize);
+        PaginatedResponse<PlaylistResponse> result = playlistService.getUserPlaylist(pageable, name);
+
+        return ApiResponse.<PaginatedResponse<PlaylistResponse>>builder()
+            .message("Get user playlist")
+            .result(result)
+            .build();
+    }
 }

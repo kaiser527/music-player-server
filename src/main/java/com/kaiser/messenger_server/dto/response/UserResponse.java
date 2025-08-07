@@ -34,6 +34,4 @@ public class UserResponse {
     RoleResponse role;
 
     Set<TrackUserResponse> track;
-
-    Set<PlaylistResponse> playlist;
 }

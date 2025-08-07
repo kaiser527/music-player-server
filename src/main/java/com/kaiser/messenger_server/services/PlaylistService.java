@@ -2,6 +2,7 @@ package com.kaiser.messenger_server.services;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Stream;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
@@ -105,5 +106,35 @@ public class PlaylistService {
             .toList();
 
         return playlistResponses;
+    }
+
+    public PaginatedResponse<PlaylistResponse> getUserPlaylist(Pageable pageable, String name){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        User user = userRepository.findByEmail(authentication.getName()).orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXIST));
+        List<Playlist> userPlaylists = playlistRepository.findByUser(user);
+        List<Playlist> globalPlaylists = playlistRepository.findByUser(null);
+
+        String search = name.toLowerCase();
+
+        List<PlaylistResponse> combined = Stream.concat(userPlaylists.stream(), globalPlaylists.stream())
+            .filter(p -> p.getName() != null && p.getName().toLowerCase().contains(search))
+            .map(playlistMapper::toPlaylistResponse)
+            .toList();
+
+        int total = combined.size();
+        int pageSize = pageable.getPageSize();
+        int pageNumber = pageable.getPageNumber();
+        int fromIndex = pageNumber * pageSize;
+        int toIndex = Math.min(fromIndex + pageSize, total);
+
+        List<PlaylistResponse> paged = fromIndex >= total ? List.of() : combined.subList(fromIndex, toIndex);
+
+        return PaginatedResponse.<PlaylistResponse>builder()
+            .pageNumber(pageNumber + 1)
+            .pageSize(pageSize)
+            .totalPages((int) Math.ceil((double) total / pageSize))
+            .data(paged)
+            .build();
     }
 }
