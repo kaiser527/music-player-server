@@ -19,5 +19,7 @@ public class PlaylistResponse {
 
     LocalDateTime updatedAt;
 
-    Set<TrackUserResponse> track;
+    Set<TrackResponse> track;
+
+    UserTrackResponse user;
 }

@@ -40,6 +40,7 @@ public enum ErrorCode {
     CODE_INVALID(1027,"Your code is expired or invalid", HttpStatus.BAD_REQUEST),
     ACCOUNT_ACTIVATED(1028,"Account is already activated", HttpStatus.BAD_REQUEST),
     PASSWORD_NOT_MATCH(1029,"Password and confirm password not match", HttpStatus.BAD_REQUEST),
+    NOT_OWNED_PLAYLIST(1030,"You can only delete your delete", HttpStatus.BAD_REQUEST),
     ;
 
     int code;

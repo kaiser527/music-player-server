@@ -137,4 +137,29 @@ public class PlaylistService {
             .data(paged)
             .build();
     }
+
+    public List<PlaylistResponse> bulkDeletePlaylist(List<String> playlistIds){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        playlistIds.forEach(item -> {
+            if(!playlistRepository.existsById(item)){
+                throw new AppException(ErrorCode.PLAYLIST_NOT_EXIST);
+            }
+        });
+
+        List<Playlist> playlists = playlistRepository.findAllById(playlistIds);
+        playlists.forEach(item -> {
+            if(!item.getUser().getEmail().equals(authentication.getName())){
+                throw new AppException(ErrorCode.NOT_OWNED_PLAYLIST);
+            }
+        });
+
+        playlistRepository.deleteAllById(playlistIds);
+
+        List<PlaylistResponse> playlistResponses = playlists.stream()
+            .map(playlistMapper::toPlaylistResponse)
+            .toList();
+
+        return playlistResponses;
+    }
 }

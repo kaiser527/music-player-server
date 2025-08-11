@@ -63,6 +63,7 @@ public class PlaylistController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("@customPermissionEvaluator.hasPermission('/api/v1/playlist/:id', 'DELETE')")
     ApiResponse<PlaylistResponse> deletePlaylist(@PathVariable("id") String id){
         PlaylistResponse result = playlistService.deletePlaylist(id);
 
@@ -77,7 +78,7 @@ public class PlaylistController {
         List<PlaylistResponse> result = playlistService.getGlobalPlaylist();
     
         return ApiResponse.<List<PlaylistResponse>>builder()
-            .message("get global playlist")
+            .message("Get global playlist")
             .result(result)
             .build();
     }
@@ -89,6 +90,16 @@ public class PlaylistController {
 
         return ApiResponse.<PaginatedResponse<PlaylistResponse>>builder()
             .message("Get user playlist")
+            .result(result)
+            .build();
+    }
+
+    @DeleteMapping
+    ApiResponse<List<PlaylistResponse>> bulkDeletePlaylist(@RequestBody List<String> playlistIds){
+        List<PlaylistResponse> result = playlistService.bulkDeletePlaylist(playlistIds);
+
+        return ApiResponse.<List<PlaylistResponse>>builder()
+            .message("Bulk delete playlist")
             .result(result)
             .build();
     }
