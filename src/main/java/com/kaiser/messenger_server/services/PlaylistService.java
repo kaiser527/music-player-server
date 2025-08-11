@@ -138,7 +138,7 @@ public class PlaylistService {
             .build();
     }
 
-    public List<PlaylistResponse> bulkDeletePlaylist(List<String> playlistIds){
+    public void bulkDeletePlaylist(List<String> playlistIds){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         playlistIds.forEach(item -> {
@@ -155,11 +155,5 @@ public class PlaylistService {
         });
 
         playlistRepository.deleteAllById(playlistIds);
-
-        List<PlaylistResponse> playlistResponses = playlists.stream()
-            .map(playlistMapper::toPlaylistResponse)
-            .toList();
-
-        return playlistResponses;
     }
 }

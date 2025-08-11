@@ -94,13 +94,12 @@ public class PlaylistController {
             .build();
     }
 
-    @DeleteMapping
+    @PostMapping("/bulk-delete")
     ApiResponse<List<PlaylistResponse>> bulkDeletePlaylist(@RequestBody List<String> playlistIds){
-        List<PlaylistResponse> result = playlistService.bulkDeletePlaylist(playlistIds);
+        playlistService.bulkDeletePlaylist(playlistIds);
 
         return ApiResponse.<List<PlaylistResponse>>builder()
             .message("Bulk delete playlist")
-            .result(result)
             .build();
     }
 }
