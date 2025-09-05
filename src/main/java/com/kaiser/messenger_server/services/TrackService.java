@@ -1,11 +1,17 @@
 package com.kaiser.messenger_server.services;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import com.kaiser.messenger_server.dto.request.TrackFilterRequest;
 import com.kaiser.messenger_server.dto.request.TrackRequest;
 import com.kaiser.messenger_server.dto.response.PaginatedResponse;
 import com.kaiser.messenger_server.dto.response.TrackResponse;
@@ -28,8 +34,38 @@ public class TrackService {
     TrackMapper trackMapper;
     UserRepository userRepository;
 
-    public PaginatedResponse<TrackResponse> getTrackPaginated(String title, Pageable pageable){
-        Page<Track> trackPage = trackRepository.findByTitleContainingIgnoreCase(title, pageable);
+    public PaginatedResponse<TrackResponse> getTrackPaginated(Pageable pageable, TrackFilterRequest filter){
+        Specification<Track> spec = (root, query, cb) -> cb.conjunction();
+        if (filter.getTitle() != null && !filter.getTitle().isEmpty()) {
+            spec = spec.and((root, q, cb) ->
+                cb.like(cb.lower(root.get("title")), "%" + filter.getTitle().toLowerCase() + "%")
+            );
+        }
+        if (filter.getUser() != null && !filter.getUser().isEmpty()) {
+            spec = spec.and((root, q, cb) ->
+                cb.like(cb.lower(root.get("user").get("username")), "%" + filter.getUser().toLowerCase() + "%")
+            );
+        }
+        if (filter.getStartDate() != null && filter.getEndDate() != null) {
+            LocalDateTime start = filter.getStartDate().atStartOfDay();             
+            LocalDateTime end = filter.getEndDate().atTime(LocalTime.MAX);
+
+            spec = spec.and((root, q, cb) ->
+                cb.between(root.get("createdAt"), start, end)
+            );
+        }
+
+        Sort sort = Sort.unsorted();
+        if (filter.getSortByCreatedAt() != null) {
+            sort = sort.and(Sort.by(filter.getSortByCreatedAt() ? Sort.Direction.ASC : Sort.Direction.DESC, "createdAt"));
+        }
+        if (filter.getSortByUpdatedAt() != null) {
+            sort = sort.and(Sort.by(filter.getSortByUpdatedAt() ? Sort.Direction.ASC : Sort.Direction.DESC, "updatedAt"));
+        }
+
+        Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
+
+        Page<Track> trackPage = trackRepository.findAll(spec, sortedPageable);
 
         List<TrackResponse> playlistReponse = trackPage.getContent()
             .stream()
@@ -70,7 +106,7 @@ public class TrackService {
 
         Track track = trackRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.TRACK_NOT_EXIST));
 
-        if(trackRepository.existsByTitleAndUrlAndIdNot(request.getTitle(), request.getUrl(), id)){
+        if(trackRepository.existsByTitleOrUrlAndIdNot(request.getTitle(), request.getUrl(), id)){
             throw new AppException(ErrorCode.TRACK_EXIST);
         }
 

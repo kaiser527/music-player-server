@@ -1,10 +1,13 @@
 package com.kaiser.messenger_server.services;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.HashSet;
 import java.util.List;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import com.kaiser.messenger_server.dto.request.RoleFilterRequest;
 import com.kaiser.messenger_server.dto.request.RoleRequest;
 import com.kaiser.messenger_server.dto.response.PaginatedResponse;
 import com.kaiser.messenger_server.dto.response.RoleResponse;
@@ -17,7 +20,10 @@ import com.kaiser.messenger_server.repositories.PermissionRepository;
 import com.kaiser.messenger_server.repositories.RoleRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -87,8 +93,33 @@ public class RoleService {
         return roleMapper.toRoleResponse(role);
     }
     
-    public PaginatedResponse<RoleResponse> getRolePaginated(Pageable page){
-        Page<Role> rolePage = roleRepository.findAll(page);
+    public PaginatedResponse<RoleResponse> getRolePaginated(Pageable pageable, RoleFilterRequest filter){
+        Specification<Role> spec = (root, query, cb) -> cb.conjunction();
+        if (filter.getName() != null && !filter.getName().isEmpty()) {
+            spec = spec.and((root, q, cb) ->
+                cb.like(cb.lower(root.get("name")), "%" + filter.getName().toLowerCase() + "%")
+            );
+        }
+        if (filter.getStartDate() != null && filter.getEndDate() != null) {
+            LocalDateTime start = filter.getStartDate().atStartOfDay();             
+            LocalDateTime end = filter.getEndDate().atTime(LocalTime.MAX);
+
+            spec = spec.and((root, q, cb) ->
+                cb.between(root.get("createdAt"), start, end)
+            );
+        }
+
+        Sort sort = Sort.unsorted();
+        if (filter.getSortByCreatedAt() != null) {
+            sort = sort.and(Sort.by(filter.getSortByCreatedAt() ? Sort.Direction.ASC : Sort.Direction.DESC, "createdAt"));
+        }
+        if (filter.getSortByUpdatedAt() != null) {
+            sort = sort.and(Sort.by(filter.getSortByUpdatedAt() ? Sort.Direction.ASC : Sort.Direction.DESC, "updatedAt"));
+        }
+
+        Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
+
+        Page<Role> rolePage = roleRepository.findAll(spec, sortedPageable);
 
         List<RoleResponse> roleResponse = rolePage.getContent()
             .stream()

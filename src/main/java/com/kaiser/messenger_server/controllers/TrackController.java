@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import com.kaiser.messenger_server.dto.request.TrackFilterRequest;
 import com.kaiser.messenger_server.dto.request.TrackRequest;
 import com.kaiser.messenger_server.dto.response.ApiResponse;
 import com.kaiser.messenger_server.dto.response.PaginatedResponse;
@@ -30,9 +32,9 @@ public class TrackController {
     TrackService trackService;
 
     @GetMapping
-    ApiResponse<PaginatedResponse<TrackResponse>> getTrackPaginated(@RequestParam int pageSize, @RequestParam int pageNumber, @RequestParam String title){
+    ApiResponse<PaginatedResponse<TrackResponse>> getTrackPaginated(@RequestParam int pageSize, @RequestParam int pageNumber, @ModelAttribute TrackFilterRequest filter){
         Pageable pageable = PageRequest.of(pageNumber - 1, pageSize);
-        PaginatedResponse<TrackResponse> result = trackService.getTrackPaginated(title, pageable);
+        PaginatedResponse<TrackResponse> result = trackService.getTrackPaginated(pageable, filter);
 
         return ApiResponse.<PaginatedResponse<TrackResponse>>builder()
             .message("Fetch track paginate")

@@ -1,15 +1,21 @@
 package com.kaiser.messenger_server.services;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.kaiser.messenger_server.dto.request.CreateUserRequest;
 import com.kaiser.messenger_server.dto.request.UpdateUserRequest;
+import com.kaiser.messenger_server.dto.request.UserFilterRequest;
 import com.kaiser.messenger_server.dto.response.PaginatedResponse;
 import com.kaiser.messenger_server.dto.response.UserResponse;
 import com.kaiser.messenger_server.entities.Role;
@@ -57,8 +63,43 @@ public class UserService {
         return userMapper.toUserResponse(user);
     }
 
-    public PaginatedResponse<UserResponse> getUserPaginated(Pageable pageable){
-        Page<User> userPage = userRepository.findAll(pageable);
+    public PaginatedResponse<UserResponse> getUserPaginated(Pageable pageable, UserFilterRequest filter){
+        Specification<User> spec = (root, query, cb) -> cb.conjunction();
+        if (filter.getEmail() != null && !filter.getEmail().isEmpty()) {
+            spec = spec.and((root, q, cb) ->
+                cb.like(cb.lower(root.get("email")), "%" + filter.getEmail().toLowerCase() + "%")
+            );
+        }
+        if (filter.getUsername() != null && !filter.getUsername().isEmpty()) {
+            spec = spec.and((root, q, cb) ->
+                cb.like(cb.lower(root.get("username")), "%" + filter.getUsername().toLowerCase() + "%")
+            );
+        }
+        if (filter.getRole() != null && !filter.getRole().isEmpty()) {
+            spec = spec.and((root, q, cb) ->
+                cb.like(cb.lower(root.get("role").get("name")), "%" + filter.getRole().toLowerCase() + "%")
+            );
+        }
+        if (filter.getStartDate() != null && filter.getEndDate() != null) {
+            LocalDateTime start = filter.getStartDate().atStartOfDay();             
+            LocalDateTime end = filter.getEndDate().atTime(LocalTime.MAX);
+
+            spec = spec.and((root, q, cb) ->
+                cb.between(root.get("createdAt"), start, end)
+            );
+        }
+
+        Sort sort = Sort.unsorted();
+        if (filter.getSortByCreatedAt() != null) {
+            sort = sort.and(Sort.by(filter.getSortByCreatedAt() ? Sort.Direction.ASC : Sort.Direction.DESC, "createdAt"));
+        }
+        if (filter.getSortByUpdatedAt() != null) {
+            sort = sort.and(Sort.by(filter.getSortByUpdatedAt() ? Sort.Direction.ASC : Sort.Direction.DESC, "updatedAt"));
+        }
+
+        Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
+
+        Page<User> userPage = userRepository.findAll(spec, sortedPageable);
 
         List<UserResponse> userResponse = userPage.getContent()
             .stream()

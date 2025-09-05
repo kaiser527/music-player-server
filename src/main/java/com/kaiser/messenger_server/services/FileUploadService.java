@@ -27,6 +27,7 @@ public class FileUploadService {
         FileType.IMAGE, Arrays.asList("jpg", "jpeg", "png"),
         FileType.TRACK, Arrays.asList("mp3", "wav", "ogg")
     );
+    
     long MAX_FILE_SIZE_IMAGE = 5 * 1024 * 1024;
     long MAX_FILE_SIZE_TRACK = 15 * 1024 * 1024;
 
