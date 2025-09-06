@@ -72,12 +72,12 @@ public class GlobalExceptionHandler {
         Map<String, Object> attributes = null;
         try {
             errorCode = ErrorCode.valueOf(enumKey);
-            var constraintViolation =
+            ConstraintViolation<?> constraintViolation =
                     exception.getBindingResult().getAllErrors().getFirst().unwrap(ConstraintViolation.class);
             attributes = constraintViolation.getConstraintDescriptor().getAttributes();
             log.info(attributes.toString());
         } catch (IllegalArgumentException e) {
-
+                log.info(e.getLocalizedMessage());
         }
         return ResponseEntity.status(errorCode.getStatusCode())
                 .body(ApiResponse.builder()
