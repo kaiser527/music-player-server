@@ -169,7 +169,7 @@ public class AuthService {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setCodeId(generateCode());
 
-        emailService.sendTemplateEmail(user.getEmail(), user.getCodeId(), "Welcome to Kaiser Musi App! Confirm your Email");
+        emailService.sendTemplateEmail(user.getEmail(), user.getCodeId(), "Welcome to Kaiser Music App! Confirm your Email");
 
         user.setCodeExpire(new Date(Instant.now().plus(5, ChronoUnit.MINUTES).toEpochMilli()));
 
