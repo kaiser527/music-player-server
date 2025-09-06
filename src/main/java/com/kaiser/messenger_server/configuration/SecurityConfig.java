@@ -28,7 +28,7 @@ public class SecurityConfig {
     private final String[] PUBLIC_ENDPOINTS_POST = {"/auth/login", "/auth/register", "/auth/verify", "/auth/resend", "/auth/forgot"};
     private final String[] PUBLIC_ENDPOINTS_GET = {"/images/**", "/tracks/**", "/track/**", "/user/artist", "/playlist/global"};
 
-    @Value("${jwt.signerKey}")
+    @Value("${jwt.signerKey-access}")
     private String signerKey;
 
     private CustomJwtDecoder customJwtDecoder;

@@ -41,6 +41,8 @@ public enum ErrorCode {
     ACCOUNT_ACTIVATED(1028,"Account is already activated", HttpStatus.BAD_REQUEST),
     PASSWORD_NOT_MATCH(1029,"Password and confirm password not match", HttpStatus.BAD_REQUEST),
     NOT_OWNED_PLAYLIST(1030,"You can only delete your delete", HttpStatus.BAD_REQUEST),
+    DELETE_SELF(1031,"You cannot delete yourself", HttpStatus.BAD_REQUEST),
+    LOGOUT_OTHER(1032,"You cannot logout other account", HttpStatus.BAD_REQUEST),
     ;
 
     int code;

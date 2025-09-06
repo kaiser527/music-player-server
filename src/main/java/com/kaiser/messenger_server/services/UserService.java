@@ -131,8 +131,12 @@ public class UserService {
     }
 
     public UserResponse deleteUser(String id){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXIST));
-
+        
+        if(user.getEmail().equals(authentication.getName())){
+            throw new AppException(ErrorCode.DELETE_SELF);
+        }
         if(user.getRole().getId().equals(ADMIN_ROLE)){
             throw new AppException(ErrorCode.DELETE_ADMIN_USER);
         }

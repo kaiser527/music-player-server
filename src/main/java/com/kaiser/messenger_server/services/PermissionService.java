@@ -1,11 +1,17 @@
 package com.kaiser.messenger_server.services;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import com.kaiser.messenger_server.dto.request.PermissionFilterRequest;
 import com.kaiser.messenger_server.dto.request.PermissionRequest;
 import com.kaiser.messenger_server.dto.response.PaginatedResponse;
 import com.kaiser.messenger_server.dto.response.PermissionResponse;
@@ -60,8 +66,48 @@ public class PermissionService {
         return permissionMapper.toPermissionResponse(permission);
     }
 
-    public PaginatedResponse<PermissionResponse> getPermissionPaginated(Pageable pageable){
-        Page<Permission> permissionPage = permissionRepository.findAll(pageable);
+    public PaginatedResponse<PermissionResponse> getPermissionPaginated(Pageable pageable, PermissionFilterRequest filter){
+        Specification<Permission> spec = (root, query, cb) -> cb.conjunction();
+        if (filter.getName() != null && !filter.getName().isEmpty()) {
+            spec = spec.and((root, q, cb) ->
+                cb.like(cb.lower(root.get("name")), "%" + filter.getName().toLowerCase() + "%")
+            );
+        }
+        if (filter.getApiPath() != null && !filter.getApiPath().isEmpty()) {
+            spec = spec.and((root, q, cb) ->
+                cb.like(cb.lower(root.get("apiPath")), "%" + filter.getApiPath().toLowerCase() + "%")
+            );
+        }
+        if (filter.getModule() != null && !filter.getModule().isEmpty()) {
+            spec = spec.and((root, q, cb) ->
+                cb.like(cb.lower(root.get("module")), "%" + filter.getModule().toLowerCase() + "%")
+            );
+        }
+        if (filter.getMethod() != null && !filter.getMethod().isEmpty()) {
+            spec = spec.and((root, q, cb) ->
+                cb.like(cb.lower(root.get("method")), "%" + filter.getMethod().toLowerCase() + "%")
+            );
+        }
+        if (filter.getStartDate() != null && filter.getEndDate() != null) {
+            LocalDateTime start = filter.getStartDate().atStartOfDay();             
+            LocalDateTime end = filter.getEndDate().atTime(LocalTime.MAX);
+
+            spec = spec.and((root, q, cb) ->
+                cb.between(root.get("createdAt"), start, end)
+            );
+        }
+
+        Sort sort = Sort.unsorted();
+        if (filter.getSortByCreatedAt() != null) {
+            sort = sort.and(Sort.by(filter.getSortByCreatedAt() ? Sort.Direction.ASC : Sort.Direction.DESC, "createdAt"));
+        }
+        if (filter.getSortByUpdatedAt() != null) {
+            sort = sort.and(Sort.by(filter.getSortByUpdatedAt() ? Sort.Direction.ASC : Sort.Direction.DESC, "updatedAt"));
+        }
+
+        Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
+
+        Page<Permission> permissionPage = permissionRepository.findAll(spec, sortedPageable);
 
         List<PermissionResponse> permissionResponse = permissionPage.getContent()
             .stream()

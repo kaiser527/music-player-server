@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.kaiser.messenger_server.dto.request.AuthRequest;
 import com.kaiser.messenger_server.dto.request.CreateUserRequest;
 import com.kaiser.messenger_server.dto.request.ForgotPasswordRequest;
+import com.kaiser.messenger_server.dto.request.LogoutRequest;
 import com.kaiser.messenger_server.dto.request.VerifyUserRequest;
 import com.kaiser.messenger_server.dto.response.ApiResponse;
 import com.kaiser.messenger_server.dto.response.AuthResponse;
@@ -50,9 +51,8 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    ApiResponse<Void> logout(@RequestHeader("Authorization") String authHeader) throws JOSEException, ParseException {
-        String token = authHeader.substring(7);
-        authService.logout(token);
+    ApiResponse<Void> logout(@RequestBody LogoutRequest request) throws JOSEException, ParseException {
+        authService.logout(request);
         
         return ApiResponse.<Void>builder()
             .message("User logout")

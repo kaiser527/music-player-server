@@ -38,7 +38,7 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
     }
 
     public boolean hasPermission(String apiPath, String method) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();     
         return hasPermission(authentication, null, apiPath, method);
     }
 }
