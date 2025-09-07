@@ -16,11 +16,9 @@ import org.springframework.stereotype.Service;
 import com.kaiser.messenger_server.dto.request.AuthRequest;
 import com.kaiser.messenger_server.dto.request.CreateUserRequest;
 import com.kaiser.messenger_server.dto.request.ForgotPasswordRequest;
-import com.kaiser.messenger_server.dto.request.IntrospectRequest;
 import com.kaiser.messenger_server.dto.request.LogoutRequest;
 import com.kaiser.messenger_server.dto.request.VerifyUserRequest;
 import com.kaiser.messenger_server.dto.response.AuthResponse;
-import com.kaiser.messenger_server.dto.response.IntrospectResponse;
 import com.kaiser.messenger_server.dto.response.UserResponse;
 import com.kaiser.messenger_server.entities.BlacklistToken;
 import com.kaiser.messenger_server.entities.Role;
@@ -87,8 +85,7 @@ public class AuthService {
 
     private Random random = new Random();
 
-    public IntrospectResponse introspect (IntrospectRequest request, String path) throws JOSEException, ParseException {
-        String token = request.getToken();
+    public boolean introspect (String token, String path) throws JOSEException, ParseException {
         boolean isValid = true;
         try {
             SignedJWT signedJWT = verifyToken(token);
@@ -106,9 +103,7 @@ public class AuthService {
         } catch (AppException e) {
             isValid = false;
         }
-        return IntrospectResponse.builder()
-            .valid(isValid)
-            .build();
+        return isValid;
     }
 
     public UserResponse getAccount(){

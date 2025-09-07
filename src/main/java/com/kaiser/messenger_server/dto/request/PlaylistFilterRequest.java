@@ -14,10 +14,8 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class RoleFilterRequest {
+public class PlaylistFilterRequest {
     String name;
-
-    Boolean isActive;
 
     Boolean sortByUpdatedAt;  
 

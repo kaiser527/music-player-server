@@ -1,13 +1,19 @@
 package com.kaiser.messenger_server.services;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Stream;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import com.kaiser.messenger_server.dto.request.PlaylistFilterRequest;
 import com.kaiser.messenger_server.dto.request.PlaylistRequest;
 import com.kaiser.messenger_server.dto.response.PaginatedResponse;
 import com.kaiser.messenger_server.dto.response.PlaylistResponse;
@@ -48,8 +54,33 @@ public class PlaylistService {
         return playlistMapper.toPlaylistResponse(playlist);
     }
 
-    public PaginatedResponse<PlaylistResponse> getPlaylistPaginated(Pageable pageable){
-        Page<Playlist> playlistPage = playlistRepository.findAll(pageable);
+    public PaginatedResponse<PlaylistResponse> getPlaylistPaginated(Pageable pageable, PlaylistFilterRequest filter){
+        Specification<Playlist> spec = (root, query, cb) -> cb.conjunction();
+        if (filter.getName() != null && !filter.getName().isEmpty()) {
+            spec = spec.and((root, q, cb) ->
+                cb.like(cb.lower(root.get("name")), "%" + filter.getName().toLowerCase() + "%")
+            );
+        }
+        if (filter.getStartDate() != null && filter.getEndDate() != null) {
+            LocalDateTime start = filter.getStartDate().atStartOfDay();             
+            LocalDateTime end = filter.getEndDate().atTime(LocalTime.MAX);
+
+            spec = spec.and((root, q, cb) ->
+                cb.between(root.get("createdAt"), start, end)
+            );
+        }
+
+        Sort sort = Sort.unsorted();
+        if (filter.getSortByCreatedAt() != null) {
+            sort = sort.and(Sort.by(filter.getSortByCreatedAt() ? Sort.Direction.ASC : Sort.Direction.DESC, "createdAt"));
+        }
+        if (filter.getSortByUpdatedAt() != null) {
+            sort = sort.and(Sort.by(filter.getSortByUpdatedAt() ? Sort.Direction.ASC : Sort.Direction.DESC, "updatedAt"));
+        }
+
+        Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
+
+        Page<Playlist> playlistPage = playlistRepository.findAll(spec, sortedPageable);
 
         List<PlaylistResponse> playlistReponse = playlistPage.getContent()
             .stream()

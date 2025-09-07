@@ -12,8 +12,6 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-import com.kaiser.messenger_server.dto.request.IntrospectRequest;
-import com.kaiser.messenger_server.dto.response.IntrospectResponse;
 import com.kaiser.messenger_server.services.AuthService;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jwt.SignedJWT;
@@ -35,8 +33,8 @@ public class CustomJwtDecoder implements JwtDecoder {
         HttpServletRequest httpRequest = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
         String path = httpRequest.getRequestURI();
         try {
-            IntrospectResponse response = authService.introspect(IntrospectRequest.builder().token(token).build(), path);
-            if (!response.isValid()) throw new JwtException("Token invalid");
+            boolean isValid = authService.introspect(token, path);
+            if (!isValid) throw new JwtException("Token invalid");
 
             SignedJWT signedJWT = SignedJWT.parse(token);
             String type = signedJWT.getJWTClaimsSet().getStringClaim("type");
@@ -49,7 +47,7 @@ public class CustomJwtDecoder implements JwtDecoder {
                     .build();
 
             return decoder.decode(token);
-
+            
         } catch (JOSEException | ParseException e) {
             throw new JwtException(e.getMessage(), e);
         }

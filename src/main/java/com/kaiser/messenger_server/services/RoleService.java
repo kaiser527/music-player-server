@@ -100,6 +100,11 @@ public class RoleService {
                 cb.like(cb.lower(root.get("name")), "%" + filter.getName().toLowerCase() + "%")
             );
         }
+        if (filter.getIsActive() != null) {
+            spec = spec.and((root, q, cb) ->
+                cb.equal(root.get("isActive"), filter.getIsActive())
+            );
+        }
         if (filter.getStartDate() != null && filter.getEndDate() != null) {
             LocalDateTime start = filter.getStartDate().atStartOfDay();             
             LocalDateTime end = filter.getEndDate().atTime(LocalTime.MAX);
