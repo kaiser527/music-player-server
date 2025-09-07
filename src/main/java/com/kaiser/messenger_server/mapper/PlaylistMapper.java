@@ -3,7 +3,7 @@ package com.kaiser.messenger_server.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
-import com.kaiser.messenger_server.dto.request.PlaylistRequest;
+import com.kaiser.messenger_server.dto.request.playlist.PlaylistRequest;
 import com.kaiser.messenger_server.dto.response.PlaylistResponse;
 import com.kaiser.messenger_server.entities.Playlist;
 

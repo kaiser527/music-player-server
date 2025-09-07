@@ -1,4 +1,4 @@
-package com.kaiser.messenger_server.dto.request;
+package com.kaiser.messenger_server.dto.request.user;
 
 import java.time.LocalDate;
 import org.springframework.format.annotation.DateTimeFormat;

@@ -1,4 +1,4 @@
-package com.kaiser.messenger_server.dto.request;
+package com.kaiser.messenger_server.dto.request.user;
 
 import com.kaiser.messenger_server.enums.AccountType;
 import jakarta.validation.constraints.Email;

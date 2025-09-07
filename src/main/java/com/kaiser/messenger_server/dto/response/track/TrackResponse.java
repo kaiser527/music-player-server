@@ -1,8 +1,6 @@
-package com.kaiser.messenger_server.dto.response;
+package com.kaiser.messenger_server.dto.response.track;
 
 import java.time.LocalDateTime;
-import java.util.Set;
-import com.kaiser.messenger_server.dto.response.track.TrackResponse;
 import com.kaiser.messenger_server.dto.response.user.UserTrackResponse;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -12,16 +10,18 @@ import lombok.experimental.FieldDefaults;
 @Data
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class PlaylistResponse {
+public class TrackResponse {
     String id;
-    
-    String name;
 
+    String title;
+
+    String url;
+
+    String artwork;
+    
     LocalDateTime createdAt;
 
     LocalDateTime updatedAt;
-
-    Set<TrackResponse> track;
 
     UserTrackResponse user;
 }

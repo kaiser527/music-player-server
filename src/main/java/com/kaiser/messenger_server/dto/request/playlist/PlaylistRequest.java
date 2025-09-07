@@ -1,5 +1,6 @@
-package com.kaiser.messenger_server.dto.request;
+package com.kaiser.messenger_server.dto.request.playlist;
 
+import java.util.Set;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -8,7 +9,8 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class LogoutRequest {
-    String accessToken;
-    String refreshToken;
+public class PlaylistRequest {
+    String name;
+
+    Set<String> trackIds;
 }

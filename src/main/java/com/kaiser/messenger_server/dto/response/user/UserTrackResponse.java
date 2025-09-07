@@ -1,4 +1,4 @@
-package com.kaiser.messenger_server.dto.response;
+package com.kaiser.messenger_server.dto.response.user;
 
 import lombok.AccessLevel;
 import lombok.Builder;

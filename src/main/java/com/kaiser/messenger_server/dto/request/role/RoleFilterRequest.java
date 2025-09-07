@@ -1,4 +1,4 @@
-package com.kaiser.messenger_server.dto.request;
+package com.kaiser.messenger_server.dto.request.role;
 
 import java.time.LocalDate;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -14,8 +14,10 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class PlaylistFilterRequest {
+public class RoleFilterRequest {
     String name;
+
+    Boolean isActive;
 
     Boolean sortByUpdatedAt;  
 

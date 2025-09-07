@@ -1,6 +1,7 @@
 package com.kaiser.messenger_server.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.kaiser.messenger_server.dto.response.user.UserResponse;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 

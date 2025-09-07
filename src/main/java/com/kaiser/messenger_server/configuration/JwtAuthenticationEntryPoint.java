@@ -8,7 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kaiser.messenger_server.dto.response.ApiResponse;
+import com.kaiser.messenger_server.dto.response.share.ApiResponse;
 import com.kaiser.messenger_server.exception.ErrorCode;
 
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {

@@ -1,8 +1,12 @@
-package com.kaiser.messenger_server.dto.request;
+package com.kaiser.messenger_server.dto.request.playlist;
 
 import java.time.LocalDate;
 import org.springframework.format.annotation.DateTimeFormat;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 @Data
@@ -10,14 +14,8 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class PermissionFilterRequest {
+public class PlaylistFilterRequest {
     String name;
-
-    String apiPath;
-
-    String module;
-
-    String method;
 
     Boolean sortByUpdatedAt;  
 

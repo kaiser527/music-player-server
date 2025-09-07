@@ -1,7 +1,9 @@
-package com.kaiser.messenger_server.dto.response;
+package com.kaiser.messenger_server.dto.response.user;
 
 import java.time.LocalDateTime;
 import java.util.Set;
+import com.kaiser.messenger_server.dto.response.RoleResponse;
+import com.kaiser.messenger_server.dto.response.track.TrackUserResponse;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

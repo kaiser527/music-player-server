@@ -3,7 +3,7 @@ package com.kaiser.messenger_server.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
-import com.kaiser.messenger_server.dto.request.RoleRequest;
+import com.kaiser.messenger_server.dto.request.role.RoleRequest;
 import com.kaiser.messenger_server.dto.response.RoleResponse;
 import com.kaiser.messenger_server.entities.Role;
 

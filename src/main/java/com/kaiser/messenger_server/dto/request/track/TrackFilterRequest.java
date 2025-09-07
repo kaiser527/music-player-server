@@ -1,4 +1,4 @@
-package com.kaiser.messenger_server.dto.request;
+package com.kaiser.messenger_server.dto.request.track;
 
 import java.time.LocalDate;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -14,10 +14,10 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class RoleFilterRequest {
-    String name;
+public class TrackFilterRequest {
+    String title;
 
-    Boolean isActive;
+    String user;
 
     Boolean sortByUpdatedAt;  
 

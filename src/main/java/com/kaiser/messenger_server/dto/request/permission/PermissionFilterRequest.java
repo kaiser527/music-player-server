@@ -1,12 +1,8 @@
-package com.kaiser.messenger_server.dto.request;
+package com.kaiser.messenger_server.dto.request.permission;
 
 import java.time.LocalDate;
 import org.springframework.format.annotation.DateTimeFormat;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 @Data
@@ -14,10 +10,14 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class TrackFilterRequest {
-    String title;
+public class PermissionFilterRequest  {
+    String name;
 
-    String user;
+    String apiPath;
+
+    String module;
+
+    String method;
 
     Boolean sortByUpdatedAt;  
 

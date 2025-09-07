@@ -3,9 +3,9 @@ package com.kaiser.messenger_server.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
-import com.kaiser.messenger_server.dto.request.CreateUserRequest;
-import com.kaiser.messenger_server.dto.request.UpdateUserRequest;
-import com.kaiser.messenger_server.dto.response.UserResponse;
+import com.kaiser.messenger_server.dto.request.user.CreateUserRequest;
+import com.kaiser.messenger_server.dto.request.user.UpdateUserRequest;
+import com.kaiser.messenger_server.dto.response.user.UserResponse;
 import com.kaiser.messenger_server.entities.User;
 
 @Mapper(componentModel = "spring")

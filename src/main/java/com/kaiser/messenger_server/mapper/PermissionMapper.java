@@ -3,7 +3,7 @@ package com.kaiser.messenger_server.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
-import com.kaiser.messenger_server.dto.request.PermissionRequest;
+import com.kaiser.messenger_server.dto.request.permission.PermissionRequest;
 import com.kaiser.messenger_server.dto.response.PermissionResponse;
 import com.kaiser.messenger_server.entities.Permission;
 

@@ -1,6 +1,5 @@
-package com.kaiser.messenger_server.dto.request;
+package com.kaiser.messenger_server.dto.request.auth;
 
-import java.util.Set;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -9,8 +8,9 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class PlaylistRequest {
-    String name;
+public class AuthRequest {
+    String email;
 
-    Set<String> trackIds;
+    String password;
 }
+

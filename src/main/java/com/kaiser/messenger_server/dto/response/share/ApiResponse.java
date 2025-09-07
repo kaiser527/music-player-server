@@ -1,6 +1,6 @@
-package com.kaiser.messenger_server.dto.response;
+package com.kaiser.messenger_server.dto.response.share;
 
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,17 +8,16 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class PaginatedResponse<T> {
-    int pageNumber;
+public class ApiResponse<T> {
+    @Builder.Default
+    int code = 1000;
 
-    int pageSize;
-
-    int totalPages;
-
-    List<T> data;
+    String message;
+    T result;
 }

@@ -1,4 +1,4 @@
-package com.kaiser.messenger_server.dto.request;
+package com.kaiser.messenger_server.dto.request.permission;
 
 import com.kaiser.messenger_server.enums.ApiMethod;
 import jakarta.validation.constraints.Pattern;

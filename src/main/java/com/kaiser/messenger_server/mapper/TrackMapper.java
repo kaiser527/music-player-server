@@ -3,8 +3,8 @@ package com.kaiser.messenger_server.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
-import com.kaiser.messenger_server.dto.request.TrackRequest;
-import com.kaiser.messenger_server.dto.response.TrackResponse;
+import com.kaiser.messenger_server.dto.request.track.TrackRequest;
+import com.kaiser.messenger_server.dto.response.track.TrackResponse;
 import com.kaiser.messenger_server.entities.Track;
 
 @Mapper(componentModel = "spring")

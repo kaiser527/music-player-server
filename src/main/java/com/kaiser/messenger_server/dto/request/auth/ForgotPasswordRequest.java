@@ -1,4 +1,4 @@
-package com.kaiser.messenger_server.dto.request;
+package com.kaiser.messenger_server.dto.request.auth;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;

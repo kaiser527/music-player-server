@@ -1,6 +1,5 @@
-package com.kaiser.messenger_server.dto.response;
+package com.kaiser.messenger_server.dto.response.track;
 
-import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
@@ -9,7 +8,7 @@ import lombok.experimental.FieldDefaults;
 @Data
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class TrackResponse {
+public class TrackUserResponse {
     String id;
 
     String title;
@@ -17,10 +16,4 @@ public class TrackResponse {
     String url;
 
     String artwork;
-    
-    LocalDateTime createdAt;
-
-    LocalDateTime updatedAt;
-
-    UserTrackResponse user;
 }

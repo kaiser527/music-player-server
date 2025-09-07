@@ -1,4 +1,4 @@
-package com.kaiser.messenger_server.dto.request;
+package com.kaiser.messenger_server.dto.request.auth;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -8,12 +8,8 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class TrackRequest {
-    String title;
-
-    String url;
-
-    String artwork;
-
-    String userId;
+public class LogoutRequest {
+    String accessToken;
+    
+    String refreshToken;
 }
