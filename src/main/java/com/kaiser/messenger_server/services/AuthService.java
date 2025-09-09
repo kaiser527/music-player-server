@@ -267,14 +267,6 @@ public class AuthService {
     public AuthResponse refreshToken(String token,  HttpServletResponse response) throws JOSEException, ParseException {
         SignedJWT signedJWT = verifyToken(token);
 
-        String jit = signedJWT.getJWTClaimsSet().getJWTID();
-
-        BlacklistToken blacklistToken = BlacklistToken.builder()
-            .id(jit)
-            .expiryTime(signedJWT.getJWTClaimsSet().getExpirationTime())
-            .build();
-        blacklistTokenRepository.save(blacklistToken);
-
         String email = signedJWT.getJWTClaimsSet().getSubject();
         User user = userRepository.findByEmail(email).orElseThrow(() -> new AppException(ErrorCode.UNAUTHENTICATED));
 
