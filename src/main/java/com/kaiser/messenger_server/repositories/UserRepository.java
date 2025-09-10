@@ -16,4 +16,6 @@ public interface UserRepository extends JpaRepository<User, String>, JpaSpecific
     Optional<User> findByEmail(String email);
 
     Page<User> findByRoleAndUsernameContainingIgnoreCase(Role role, String username, Pageable pageable);
+
+    boolean existsByImage(String image);
 }

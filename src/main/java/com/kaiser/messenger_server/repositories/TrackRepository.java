@@ -15,4 +15,8 @@ public interface TrackRepository extends JpaRepository<Track, String>, JpaSpecif
            "WHERE (t.title = :title OR t.url = :url) " +
            "AND t.id <> :id")
     boolean existsByTitleOrUrlAndIdNot(String title, String url, String id);
+
+    boolean existsByArtwork(String artwork);
+
+    boolean existsByUrl(String url);
 } 
