@@ -60,8 +60,4 @@ public class User {
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     @EqualsAndHashCode.Exclude
     Set<Track> track;
-
-    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
-    @EqualsAndHashCode.Exclude
-    Set<Playlist> playlist;
 }

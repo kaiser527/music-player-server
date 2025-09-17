@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,6 +21,7 @@ import com.kaiser.messenger_server.dto.response.share.PaginatedResponse;
 import com.kaiser.messenger_server.entities.Playlist;
 import com.kaiser.messenger_server.entities.Track;
 import com.kaiser.messenger_server.entities.User;
+import com.kaiser.messenger_server.enums.PlaylistAction;
 import com.kaiser.messenger_server.exception.AppException;
 import com.kaiser.messenger_server.exception.ErrorCode;
 import com.kaiser.messenger_server.mapper.PlaylistMapper;
@@ -108,12 +110,19 @@ public class PlaylistService {
             }
         });
 
-        List<Track> tracks = trackRepository.findAllById(request.getTrackIds());
+        List<Track> tracks = trackRepository.findAllById(request.getTrackIds());    
 
         playlistMapper.toUpdatePlaylist(playlist, request);
 
+        if (request.getAction() == PlaylistAction.ADD) {
+            Set<Track> mergedTracks = new HashSet<>(playlist.getTrack());
+            mergedTracks.addAll(tracks);
+            playlist.setTrack(mergedTracks);
+        } else if (request.getAction() == PlaylistAction.REPLACE) {
+            playlist.setTrack(new HashSet<>(tracks));
+        }
+
         playlist.setUpdatedBy(authentication.getName());
-        playlist.setTrack(new HashSet<Track>(tracks));
         playlist.setUser(user);
 
         playlistRepository.save(playlist);

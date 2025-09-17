@@ -15,6 +15,7 @@ public interface RoleMapper {
     @Mapping(target = "updatedBy", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "permission", ignore = true)
+    @Mapping(target = "user", ignore = true)
     Role toCreateRole(RoleRequest request);
 
     RoleResponse toRoleResponse(Role role);
@@ -25,5 +26,6 @@ public interface RoleMapper {
     @Mapping(target = "updatedBy", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "permission", ignore = true)
+    @Mapping(target = "user", ignore = true)
     void toUpdateRole(@MappingTarget Role role, RoleRequest request);
 }

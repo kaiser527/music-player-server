@@ -17,7 +17,6 @@ public interface UserMapper {
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "role", ignore = true)
     @Mapping(target = "track", ignore = true)
-    @Mapping(target = "playlist", ignore = true)
     @Mapping(target = "codeExpire", ignore = true)
     @Mapping(target = "codeId", ignore = true)
     User toCreateUser(CreateUserRequest request);
@@ -33,7 +32,6 @@ public interface UserMapper {
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "role", ignore = true)
     @Mapping(target = "track", ignore = true)
-    @Mapping(target = "playlist", ignore = true)
     @Mapping(target = "codeExpire", ignore = true)
     @Mapping(target = "codeId", ignore = true)
     void toUpdateUser(@MappingTarget User user, UpdateUserRequest request);

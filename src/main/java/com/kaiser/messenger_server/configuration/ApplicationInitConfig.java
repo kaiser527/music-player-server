@@ -414,7 +414,6 @@ public class ApplicationInitConfig {
                     .createdBy("system")
                     .accountType(AccountType.LOCAL)
                     .role(artistRole)
-                    .playlist(null)
                     .build());
 
                 User ryan = userRepository.save(User.builder()

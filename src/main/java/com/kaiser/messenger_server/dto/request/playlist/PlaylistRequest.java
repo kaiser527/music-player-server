@@ -1,6 +1,7 @@
 package com.kaiser.messenger_server.dto.request.playlist;
 
 import java.util.Set;
+import com.kaiser.messenger_server.enums.PlaylistAction;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -13,4 +14,6 @@ public class PlaylistRequest {
     String name;
 
     Set<String> trackIds;
+
+    PlaylistAction action;
 }

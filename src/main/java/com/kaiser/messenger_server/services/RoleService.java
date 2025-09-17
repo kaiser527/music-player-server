@@ -148,6 +148,10 @@ public class RoleService {
     public RoleResponse deleteRole(String id){
         Role role = roleRepository.findWithPermissionById(id).orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXIST));
         
+        if(role.getUser().size() > 0){
+            throw new AppException(ErrorCode.RELATED_ROLE);
+        }
+
         if(role.getId().equals(ADMIN_ROLE)){
             throw new AppException(ErrorCode.DELETE_ADMIN_ROLE);
         }
