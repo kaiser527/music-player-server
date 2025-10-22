@@ -9,8 +9,8 @@ import com.kaiser.messenger_server.modules.auth.entity.BlacklistToken;
 
 @Repository
 public interface BlacklistTokenRepository extends JpaRepository<BlacklistToken, String> {
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Transactional
-    @Query("DELETE FROM BlacklistToken t WHERE t.expiryTime < CURRENT_TIMESTAMP")
+    @Query(value = "DELETE FROM BlacklistToken t WHERE t.expiryTime < CURRENT_TIMESTAMP", nativeQuery = true)
     void deleteTokensExpiredBefore();
 }

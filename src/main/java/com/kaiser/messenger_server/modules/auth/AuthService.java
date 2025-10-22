@@ -5,7 +5,6 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
@@ -19,7 +18,6 @@ import com.kaiser.messenger_server.exception.ErrorCode;
 import com.kaiser.messenger_server.modules.auth.dto.AuthRequest;
 import com.kaiser.messenger_server.modules.auth.dto.AuthResponse;
 import com.kaiser.messenger_server.modules.auth.dto.ForgotPasswordRequest;
-import com.kaiser.messenger_server.modules.auth.dto.LogoutRequest;
 import com.kaiser.messenger_server.modules.auth.dto.VerifyUserRequest;
 import com.kaiser.messenger_server.modules.auth.entity.BlacklistToken;
 import com.kaiser.messenger_server.modules.mail.EmailService;
@@ -233,35 +231,19 @@ public class AuthService {
         return userMapper.toUserResponse(user);
     }
 
-    public void logout(LogoutRequest request) throws JOSEException, ParseException {
-        SignedJWT accessToken = verifyToken(request.getAccessToken());
-        SignedJWT refreshToken = verifyToken(request.getRefreshToken());
+    public void logout(String token, HttpServletResponse response) throws JOSEException, ParseException {      
+        Cookie deleteCookie = new Cookie("refresh_token", null);
+        deleteCookie.setMaxAge(0);
+        deleteCookie.setHttpOnly(true);
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        response.addCookie(deleteCookie);
 
-        boolean check = authentication.getName().equals(accessToken.getJWTClaimsSet().getSubject()) && 
-            authentication.getName().equals(refreshToken.getJWTClaimsSet().getSubject());
-        if(!check){
-            throw new AppException(ErrorCode.LOGOUT_OTHER);
-        }
+        SignedJWT accessToken = verifyToken(token);
 
-        List<BlacklistToken> savedTokens = List.of(
-            BlacklistToken.builder()
-                .id(accessToken.getJWTClaimsSet().getJWTID())
-                .expiryTime(accessToken.getJWTClaimsSet().getExpirationTime())
-                .build(),
-            BlacklistToken.builder()
-                .id(refreshToken.getJWTClaimsSet().getJWTID())
-                .expiryTime(new Date(
-                    refreshToken.getJWTClaimsSet().getIssueTime()
-                        .toInstant()
-                        .plus(REFRESHABLE_DURATION, ChronoUnit.SECONDS)
-                        .toEpochMilli()
-                ))
-                .build()
-        );
-                
-        blacklistTokenRepository.saveAll(savedTokens);     
+        blacklistTokenRepository.save(BlacklistToken.builder()
+            .id(accessToken.getJWTClaimsSet().getJWTID())
+            .expiryTime(accessToken.getJWTClaimsSet().getExpirationTime())
+            .build());
     }
 
     public AuthResponse refreshToken(String token,  HttpServletResponse response) throws JOSEException, ParseException {
