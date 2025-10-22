@@ -37,8 +37,8 @@ jwt:
   refreshable-duration: 604800
 
 role:
-  user: 8ff75f03-f52e-418e-b339-71e2ffb4e215
-  admin: 8c0241a8-0f98-4495-94fa-86f47be8d422
+  user: d11243a7-e370-49ed-8ebc-73c73db77c01
+  admin: b9958cd3-18ed-4af4-a949-cac658b3fafb
 
 file:
   upload-dir: public/images

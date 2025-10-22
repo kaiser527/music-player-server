@@ -10,7 +10,9 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
-import com.kaiser.messenger_server.dto.response.share.ApiResponse;
+
+import com.kaiser.messenger_server.utils.ApiResponse;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

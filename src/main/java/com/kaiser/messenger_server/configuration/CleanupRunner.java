@@ -9,10 +9,10 @@ import java.util.List;
 import java.util.function.Predicate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import com.kaiser.messenger_server.entities.BlacklistToken;
-import com.kaiser.messenger_server.repositories.BlacklistTokenRepository;
-import com.kaiser.messenger_server.repositories.TrackRepository;
-import com.kaiser.messenger_server.repositories.UserRepository;
+import com.kaiser.messenger_server.modules.auth.BlacklistTokenRepository;
+import com.kaiser.messenger_server.modules.auth.entity.BlacklistToken;
+import com.kaiser.messenger_server.modules.track.TrackRepository;
+import com.kaiser.messenger_server.modules.user.UserRepository;
 
 @Slf4j
 @Component
