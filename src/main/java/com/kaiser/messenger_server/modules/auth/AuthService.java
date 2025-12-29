@@ -1,12 +1,10 @@
 package com.kaiser.messenger_server.modules.auth;
 
+import java.security.SecureRandom;
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Random;
-import java.util.Set;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -32,13 +30,11 @@ import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.JWSObject;
-import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.Payload;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -79,9 +75,7 @@ public class AuthService {
     @Value("${role.user}")
     String USER_ROLE;
 
-    private Set<String> generatedCodes = new HashSet<>();
-
-    private Random random = new Random();
+    private static final SecureRandom secureRandom = new SecureRandom();
 
     public boolean introspect (String token, String path) throws JOSEException, ParseException {
         boolean isValid = true;
@@ -127,18 +121,12 @@ public class AuthService {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
 
-        if(user.getIsActive() == false){
+        if(!user.getIsActive() || !user.getRole().getIsActive()){
             throw new AppException(ErrorCode.ACCOUNT_NOT_ACTIVATED);
         }
 
         String access_token = generateToken(user, TokenType.ACCESS);
         String refresh_token = generateToken(user, TokenType.REFRESH);
-
-        Cookie cookie = new Cookie("refresh_token", refresh_token);
-        cookie.setMaxAge((int)REFRESHABLE_DURATION);
-        cookie.setHttpOnly(true);
-
-        response.addCookie(cookie);
 
         return AuthResponse.builder()
             .access_token(access_token)
@@ -231,19 +219,9 @@ public class AuthService {
         return userMapper.toUserResponse(user);
     }
 
-    public void logout(String token, HttpServletResponse response) throws JOSEException, ParseException {      
-        Cookie deleteCookie = new Cookie("refresh_token", null);
-        deleteCookie.setMaxAge(0);
-        deleteCookie.setHttpOnly(true);
-
-        response.addCookie(deleteCookie);
-
-        SignedJWT accessToken = verifyToken(token);
-
-        blacklistTokenRepository.save(BlacklistToken.builder()
-            .id(accessToken.getJWTClaimsSet().getJWTID())
-            .expiryTime(accessToken.getJWTClaimsSet().getExpirationTime())
-            .build());
+    public void logout(String access_token, String refresh_token) throws JOSEException, ParseException {
+       blacklistSafely(access_token);
+       blacklistSafely(refresh_token);
     }
 
     public AuthResponse refreshToken(String token,  HttpServletResponse response) throws JOSEException, ParseException {
@@ -252,20 +230,11 @@ public class AuthService {
         String email = signedJWT.getJWTClaimsSet().getSubject();
         User user = userRepository.findByEmail(email).orElseThrow(() -> new AppException(ErrorCode.UNAUTHENTICATED));
 
+        if(!user.getIsActive() || !user.getRole().getIsActive()){
+            throw new AppException(ErrorCode.ACCOUNT_NOT_ACTIVATED);
+        }
+
         String access_token = generateToken(user, TokenType.ACCESS);
-        String refresh_token = generateToken(user, TokenType.REFRESH);
-
-        Cookie deleteCookie = new Cookie("refresh_token", null);
-        deleteCookie.setMaxAge(0);
-        deleteCookie.setHttpOnly(true);
-
-        response.addCookie(deleteCookie);
-
-        Cookie cookie = new Cookie("refresh_token", refresh_token);
-        cookie.setMaxAge((int)REFRESHABLE_DURATION);
-        cookie.setHttpOnly(true);
-
-        response.addCookie(cookie);
 
         return AuthResponse.builder()
             .access_token(access_token)
@@ -276,22 +245,29 @@ public class AuthService {
 
     private SignedJWT verifyToken(String token) throws JOSEException, ParseException {
         SignedJWT signedJWT = SignedJWT.parse(token);
-        String type = (String)signedJWT.getJWTClaimsSet().getClaim("type");
+        var claims = signedJWT.getJWTClaimsSet();
 
-        String signerKey = TokenType.REFRESH.toString().equals(type) ? SIGNER_KEY_REFRESH : SIGNER_KEY_ACCESS;
-        JWSVerifier jwsVerifier = new MACVerifier(signerKey.getBytes());
-
-        Date expireTime = TokenType.REFRESH.toString().equals(type) 
-            ? new Date(signedJWT.getJWTClaimsSet().getIssueTime().toInstant().plus(REFRESHABLE_DURATION, ChronoUnit.SECONDS).toEpochMilli())
-            : signedJWT.getJWTClaimsSet().getExpirationTime();
-
-        boolean verified = signedJWT.verify(jwsVerifier);
-
-        if (!(verified && expireTime.after(new Date()))) {
+        String type = claims.getStringClaim("type");
+        if (type == null) {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
 
-        if (blacklistTokenRepository.existsById(signedJWT.getJWTClaimsSet().getJWTID())) {
+        String signerKey =
+            TokenType.ACCESS.toString().equals(type)
+                ? SIGNER_KEY_ACCESS
+                : SIGNER_KEY_REFRESH;
+
+        if (!signedJWT.verify(new MACVerifier(signerKey.getBytes()))) {
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
+
+        Date exp = claims.getExpirationTime();
+        if (exp == null || exp.before(new Date())) {
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
+
+        if (claims.getJWTID() != null &&
+            blacklistTokenRepository.existsById(claims.getJWTID())) {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
 
@@ -328,18 +304,29 @@ public class AuthService {
         }
     }
 
-    private synchronized String generateCode(){
-        if (generatedCodes.size() >= 1_000_000) {
-            throw new IllegalStateException("All 6-digit codes exhausted.");
+    private String generateCode(){
+        return String.format("%06d", secureRandom.nextInt(1_000_000));
+    }
+
+    private void blacklistSafely(String token) {
+        if (token == null || token.isBlank()) return;
+        try {
+            SignedJWT jwt = SignedJWT.parse(token);
+            String jti = jwt.getJWTClaimsSet().getJWTID();
+            Date exp = jwt.getJWTClaimsSet().getExpirationTime();
+
+            if (jti == null || exp == null) return;
+
+            if (!blacklistTokenRepository.existsById(jti)) {
+                blacklistTokenRepository.save(
+                    BlacklistToken.builder()
+                        .id(jti)
+                        .expiryTime(exp)
+                        .build()
+                );
+            }
+        } catch (Exception e) {
+            throw new AppException(ErrorCode.UNCATEGORZIED_EXCEPTION);
         }
-
-        String code;
-        do {
-            code = String.format("%06d", random.nextInt(1_000_000)); // "000000" to "999999"
-        } while (generatedCodes.contains(code));
-
-        generatedCodes.add(code);
-
-        return code;
     }
 }
