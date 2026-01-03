@@ -2,6 +2,7 @@ package com.kaiser.messenger_server.modules.mail;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -29,13 +30,15 @@ public class EmailService {
         this.handlebars = new Handlebars(loader);
     }
 
-    public void sendTemplateEmail(String name, String activationCode, String subject){
-        try{
+    public void sendTemplateEmail(String email, String activationCode, String subject) {
+        if (!EmailValidator.getInstance().isValid(email)) {
+            throw new AppException(ErrorCode.EMAIL_INVALID);
+        }
+        try {
             Template template = handlebars.compile("email-content");
 
             Map<String, String> context = new HashMap<>();
-
-            context.put("name", name);
+            context.put("name", email);
             context.put("activationCode", activationCode);
 
             String htmlBody = template.apply(context);
@@ -43,13 +46,13 @@ public class EmailService {
             MimeMessage message = javaMailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-            helper.setTo(name);
+            helper.setTo(email);
             helper.setSubject(subject);
             helper.setText(htmlBody, true);
 
             javaMailSender.send(message);
-        }catch(Exception e){
-            log.info(e.getMessage());
+        } catch (Exception e) {
+            log.error("Send mail error", e);
             throw new AppException(ErrorCode.SEND_MAIL_FAILED);
         }
     }

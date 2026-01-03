@@ -18,15 +18,11 @@ import lombok.extern.slf4j.Slf4j;
 public class GlobalExceptionHandler {
     private static final String MIN_ATTRIBUTE = "min";
 
-    @ExceptionHandler(value = Exception.class)
+    @ExceptionHandler(Exception.class)
     ResponseEntity<?> handlingRuntimeException(HttpServletResponse response, Exception exception) {
-        log.error("Unhandled exception caught: ", exception);
-
-        String contentType = response.getContentType();
-
-        if (contentType != null && contentType.startsWith("audio/")) {
-                // Just set status code, no body (Spring will fail to serialize otherwise)
-                return ResponseEntity.status(ErrorCode.UNCATEGORZIED_EXCEPTION.getStatusCode()).build();
+        if (exception.getClass().getName().contains("ClientAbortException")
+                || exception instanceof java.io.IOException) {
+                return null;
         }
 
         return ResponseEntity.status(ErrorCode.UNCATEGORZIED_EXCEPTION.getStatusCode())
