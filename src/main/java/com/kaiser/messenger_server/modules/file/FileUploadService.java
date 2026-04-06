@@ -31,11 +31,11 @@ public class FileUploadService {
     long MAX_FILE_SIZE_IMAGE = 5 * 1024 * 1024;
     long MAX_FILE_SIZE_TRACK = 15 * 1024 * 1024;
 
-    @Value("${file.upload-dir}")
+    @Value("${file.image-upload-dir}")
     @NonFinal
     private String UPLOAD_DIR_IMAGE ;
 
-    @Value("${track.upload-dir}")
+    @Value("${file.track-upload-dir}")
     @NonFinal
     private String UPLOAD_DIR_TRACK ;
 

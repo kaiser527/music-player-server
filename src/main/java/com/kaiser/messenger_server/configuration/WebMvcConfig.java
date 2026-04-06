@@ -9,10 +9,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer{
-    @Value("${file.upload-dir}")
+    @Value("${file.image-upload-dir}")
     private String UPLOAD_DIR_IMAGE ;
 
-    @Value("${track.upload-dir}")
+    @Value("${file.track-upload-dir}")
     private String UPLOAD_DIR_TRACK ;
 
     @Override

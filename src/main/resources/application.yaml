@@ -26,7 +26,7 @@ spring:
             enable: true
 
 server:
-  port: 3000
+  port: 3009
   servlet:
     context-path: /api/v1
 
@@ -41,7 +41,5 @@ role:
   admin: cc2f31f4-ab20-41d0-a3e9-1b49ea5608f5
 
 file:
-  upload-dir: public/images
-
-track:
-  upload-dir: public/tracks
+  image-upload-dir: public/images
+  track-upload-dir: public/tracks
