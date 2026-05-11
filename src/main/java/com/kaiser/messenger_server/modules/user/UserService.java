@@ -1,7 +1,6 @@
 package com.kaiser.messenger_server.modules.user;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -22,6 +21,7 @@ import com.kaiser.messenger_server.modules.user.dto.UpdateUserRequest;
 import com.kaiser.messenger_server.modules.user.dto.UserFilterRequest;
 import com.kaiser.messenger_server.modules.user.dto.UserResponse;
 import com.kaiser.messenger_server.modules.user.entity.User;
+import com.kaiser.messenger_server.utils.Helper;
 import com.kaiser.messenger_server.utils.PaginatedResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -78,12 +78,16 @@ public class UserService {
                 cb.like(cb.lower(root.get("role").get("name")), "%" + filter.getRole().toLowerCase() + "%")
             );
         }
-        if (filter.getStartDate() != null && filter.getEndDate() != null) {
-            LocalDateTime start = filter.getStartDate().atStartOfDay();             
-            LocalDateTime end = filter.getEndDate().atTime(LocalTime.MAX);
-
+        LocalDateTime[] createdRange = Helper.parseDateRange(filter.getCreatedAtRange());
+        if (createdRange != null) {
             spec = spec.and((root, q, cb) ->
-                cb.between(root.get("createdAt"), start, end)
+                cb.between(root.get("createdAt"), createdRange[0], createdRange[1])
+            );
+        }
+        LocalDateTime[] updatedRange = Helper.parseDateRange(filter.getUpdatedAtRange());
+        if (updatedRange != null) {
+            spec = spec.and((root, q, cb) ->
+                cb.between(root.get("updatedAt"), updatedRange[0], updatedRange[1])
             );
         }
 

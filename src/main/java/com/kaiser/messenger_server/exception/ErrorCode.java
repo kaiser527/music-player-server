@@ -43,7 +43,8 @@ public enum ErrorCode {
     NOT_OWNED_PLAYLIST(1030,"You can only delete your delete", HttpStatus.BAD_REQUEST),
     DELETE_SELF(1031,"You cannot delete yourself", HttpStatus.BAD_REQUEST),
     LOGOUT_OTHER(1032,"You cannot logout other account", HttpStatus.BAD_REQUEST),
-    RELATED_ROLE(1033,"You must delete all user belong to this role before delete", HttpStatus.BAD_REQUEST)
+    RELATED_ROLE(1033,"You must delete all user belong to this role before delete", HttpStatus.BAD_REQUEST),
+    INVALID_DATE_FORMAT(1034,"Invalid date range format", HttpStatus.BAD_REQUEST)
     ;
 
     int code;

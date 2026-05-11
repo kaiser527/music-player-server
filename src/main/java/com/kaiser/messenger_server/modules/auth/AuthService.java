@@ -18,7 +18,7 @@ import com.kaiser.messenger_server.modules.auth.dto.AuthResponse;
 import com.kaiser.messenger_server.modules.auth.dto.ForgotPasswordRequest;
 import com.kaiser.messenger_server.modules.auth.dto.VerifyUserRequest;
 import com.kaiser.messenger_server.modules.auth.entity.BlacklistToken;
-import com.kaiser.messenger_server.modules.mail.EmailService;
+import com.kaiser.messenger_server.modules.mail.EmailQueueService;
 import com.kaiser.messenger_server.modules.role.RoleRepository;
 import com.kaiser.messenger_server.modules.role.entity.Role;
 import com.kaiser.messenger_server.modules.user.UserMapper;
@@ -35,7 +35,6 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -53,7 +52,7 @@ public class AuthService {
     BlacklistTokenRepository blacklistTokenRepository;
     UserMapper userMapper;
     RoleRepository roleRepository;
-    EmailService emailService;
+    EmailQueueService emailQueueService;
     
     @NonFinal
     @Value("${jwt.signerKey-access}")
@@ -112,7 +111,7 @@ public class AuthService {
         return userMapper.toUserResponse(user);
     }
 
-    public AuthResponse login(AuthRequest request, HttpServletResponse response){
+    public AuthResponse login(AuthRequest request){
         User user = userRepository.findByEmail(request.getEmail()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXIST));
 
         boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPassword());
@@ -150,7 +149,7 @@ public class AuthService {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setCodeId(generateCode());
 
-        emailService.sendTemplateEmail(user.getEmail(), user.getCodeId(), "Welcome to Kaiser Music App! Confirm your Email");
+        emailQueueService.enqueueEmail(user.getEmail(), user.getCodeId(), "Welcome to Kaiser Music App! Confirm your Email");
 
         user.setCodeExpire(new Date(Instant.now().plus(5, ChronoUnit.MINUTES).toEpochMilli()));
 
@@ -161,6 +160,10 @@ public class AuthService {
 
     public UserResponse verifyUser(VerifyUserRequest request){
         User user = userRepository.findByEmail(request.getEmail()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXIST));
+
+        if(user.getIsActive()) {
+            throw new AppException(ErrorCode.ACCOUNT_ACTIVATED);
+        }
 
         boolean check = 
             user.getCodeId().equals(request.getCodeId()) &&
@@ -184,9 +187,13 @@ public class AuthService {
             throw new AppException(ErrorCode.ACCOUNT_ACTIVATED);
         }
 
+        if(!user.getIsActive() && request.getIsForgot()){
+            throw new AppException(ErrorCode.ACCOUNT_NOT_ACTIVATED);
+        }
+
         user.setCodeId(generateCode());
         
-        emailService.sendTemplateEmail(user.getEmail(), user.getCodeId(), "Welcome to Kaiser Musi App! Confirm your Email");
+        emailQueueService.enqueueEmail(user.getEmail(), user.getCodeId(), "Welcome to Kaiser Musi App! Confirm your Email");
 
         user.setCodeExpire(new Date(Instant.now().plus(5, ChronoUnit.MINUTES).toEpochMilli()));
 
@@ -224,7 +231,7 @@ public class AuthService {
        blacklistSafely(refresh_token);
     }
 
-    public AuthResponse refreshToken(String token,  HttpServletResponse response) throws JOSEException, ParseException {
+    public AuthResponse refreshToken(String token) throws JOSEException, ParseException {
         SignedJWT signedJWT = verifyToken(token);
 
         String email = signedJWT.getJWTClaimsSet().getSubject();

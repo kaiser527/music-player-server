@@ -43,3 +43,7 @@ role:
 file:
   image-upload-dir: public/images
   track-upload-dir: public/tracks
+
+redis:
+  host: localhost
+  port: 6379

@@ -1,7 +1,6 @@
 package com.kaiser.messenger_server.modules.role;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.HashSet;
 import java.util.List;
 import org.springframework.security.core.Authentication;
@@ -15,6 +14,7 @@ import com.kaiser.messenger_server.modules.role.dto.RoleFilterRequest;
 import com.kaiser.messenger_server.modules.role.dto.RoleRequest;
 import com.kaiser.messenger_server.modules.role.dto.RoleResponse;
 import com.kaiser.messenger_server.modules.role.entity.Role;
+import com.kaiser.messenger_server.utils.Helper;
 import com.kaiser.messenger_server.utils.PaginatedResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -103,12 +103,16 @@ public class RoleService {
                 cb.equal(root.get("isActive"), filter.getIsActive())
             );
         }
-        if (filter.getStartDate() != null && filter.getEndDate() != null) {
-            LocalDateTime start = filter.getStartDate().atStartOfDay();             
-            LocalDateTime end = filter.getEndDate().atTime(LocalTime.MAX);
-
+        LocalDateTime[] createdRange = Helper.parseDateRange(filter.getCreatedAtRange());
+        if (createdRange != null) {
             spec = spec.and((root, q, cb) ->
-                cb.between(root.get("createdAt"), start, end)
+                cb.between(root.get("createdAt"), createdRange[0], createdRange[1])
+            );
+        }
+        LocalDateTime[] updatedRange = Helper.parseDateRange(filter.getUpdatedAtRange());
+        if (updatedRange != null) {
+            spec = spec.and((root, q, cb) ->
+                cb.between(root.get("updatedAt"), updatedRange[0], updatedRange[1])
             );
         }
 

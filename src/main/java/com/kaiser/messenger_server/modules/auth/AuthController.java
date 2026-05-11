@@ -16,7 +16,6 @@ import com.kaiser.messenger_server.modules.user.dto.CreateUserRequest;
 import com.kaiser.messenger_server.modules.user.dto.UserResponse;
 import com.kaiser.messenger_server.utils.ApiResponse;
 import com.nimbusds.jose.JOSEException;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -30,8 +29,8 @@ public class AuthController {
     AuthService authService;
 
     @PostMapping("/login")
-    ApiResponse<AuthResponse> login(@RequestBody AuthRequest request, HttpServletResponse response) {
-        AuthResponse result = authService.login(request, response);
+    ApiResponse<AuthResponse> login(@RequestBody AuthRequest request) {
+        AuthResponse result = authService.login(request);
 
         return ApiResponse.<AuthResponse>builder()
             .message("User login")
@@ -60,9 +59,9 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    ApiResponse<AuthResponse> refresh(@RequestHeader("Authorization") String authHeader, HttpServletResponse response) throws JOSEException, ParseException {
+    ApiResponse<AuthResponse> refresh(@RequestHeader("Authorization") String authHeader) throws JOSEException, ParseException {
         String token = authHeader.substring(7);
-        AuthResponse result = authService.refreshToken(token, response);
+        AuthResponse result = authService.refreshToken(token);
         
         return ApiResponse.<AuthResponse>builder()
             .message("Refresh new token")

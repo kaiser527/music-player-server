@@ -1,7 +1,6 @@
 package com.kaiser.messenger_server.modules.playlist;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -25,6 +24,7 @@ import com.kaiser.messenger_server.modules.track.TrackRepository;
 import com.kaiser.messenger_server.modules.track.entity.Track;
 import com.kaiser.messenger_server.modules.user.UserRepository;
 import com.kaiser.messenger_server.modules.user.entity.User;
+import com.kaiser.messenger_server.utils.Helper;
 import com.kaiser.messenger_server.utils.PaginatedResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -61,12 +61,16 @@ public class PlaylistService {
                 cb.like(cb.lower(root.get("name")), "%" + filter.getName().toLowerCase() + "%")
             );
         }
-        if (filter.getStartDate() != null && filter.getEndDate() != null) {
-            LocalDateTime start = filter.getStartDate().atStartOfDay();             
-            LocalDateTime end = filter.getEndDate().atTime(LocalTime.MAX);
-
+        LocalDateTime[] createdRange = Helper.parseDateRange(filter.getCreatedAtRange());
+        if (createdRange != null) {
             spec = spec.and((root, q, cb) ->
-                cb.between(root.get("createdAt"), start, end)
+                cb.between(root.get("createdAt"), createdRange[0], createdRange[1])
+            );
+        }
+        LocalDateTime[] updatedRange = Helper.parseDateRange(filter.getUpdatedAtRange());
+        if (updatedRange != null) {
+            spec = spec.and((root, q, cb) ->
+                cb.between(root.get("updatedAt"), updatedRange[0], updatedRange[1])
             );
         }
 
