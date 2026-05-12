@@ -69,7 +69,6 @@ public class TestGenerator {
                 String updateId = model.randomUser();
 
                 if (updateId != null) {
-
                     UserModel oldUser = model.getUser(updateId);
 
                     UserModel updatedUser =
