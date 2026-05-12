@@ -23,10 +23,10 @@ public class WebMvcConfig implements WebMvcConfigurer{
         
         registry.addResourceHandler("/images/**")
                 .addResourceLocations("file:" + imagePath)
-                .setCachePeriod(0); // Disable cache for development
+                .setCachePeriod(0);
 
         registry.addResourceHandler("/tracks/**")
                 .addResourceLocations("file:" + trackPath)
-                .setCachePeriod(0); // Disable cache for development
+                .setCachePeriod(0);
     }
 }
