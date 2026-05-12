@@ -74,8 +74,7 @@ public class TestGenerator {
 
                 if (updateId != null) {
 
-                    UserModel oldUser =
-                        model.getUser(updateId);
+                    UserModel oldUser = model.getUser(updateId);
 
                     UserModel updatedUser =
                         UserModel.builder()
@@ -91,10 +90,7 @@ public class TestGenerator {
                             .roleId(oldUser.getRoleId())
                             .build();
 
-                    model.updateUser(
-                        updateId,
-                        updatedUser
-                    );
+                    model.updateUser(updateId, updatedUser);
                 }
 
                 break;
