@@ -52,10 +52,7 @@ public class TestGenerator {
                         .roleId("USER")
                         .build();
 
-                model.addUser(
-                    TestDataGenerator.randomUserId(),
-                    user
-                );
+                model.addUser(TestDataGenerator.randomUserId(), user);
 
                 break;
 
@@ -69,8 +66,7 @@ public class TestGenerator {
                 break;
 
             case UPDATE_USER:
-                String updateId =
-                    model.randomUser();
+                String updateId = model.randomUser();
 
                 if (updateId != null) {
 

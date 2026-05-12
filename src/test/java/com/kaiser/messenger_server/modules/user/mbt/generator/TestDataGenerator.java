@@ -46,9 +46,7 @@ public class TestDataGenerator {
                 .username("updated_" + rand)
                 .image("img_" + rand + ".png")
                 .accountType(
-                        ThreadLocalRandom.current().nextBoolean()
-                                ? AccountType.LOCAL
-                                : AccountType.GOOGLE
+                    ThreadLocalRandom.current().nextBoolean() ? AccountType.LOCAL : AccountType.GOOGLE
                 )
                 .isActive(true)
                 .roleId(roleId)
