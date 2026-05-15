@@ -13,7 +13,7 @@ public class TestDataGenerator {
     }
 
     public static CreateUserRequest randomCreateRequest(String roleId, ModelState model) {
-        boolean reuseEmail = ThreadLocalRandom.current().nextInt(100) < 40;
+        boolean reuseEmail = ThreadLocalRandom.current().nextBoolean();
 
         String email;
 
