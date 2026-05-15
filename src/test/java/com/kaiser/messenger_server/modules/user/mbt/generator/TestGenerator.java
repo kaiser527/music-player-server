@@ -14,7 +14,18 @@ public class TestGenerator {
     public static List<ActionState> generateSequence(int length, ModelState model) {
         List<ActionState> sequence = new ArrayList<>();
 
-        for (int i = 0; i < length; i++) {
+        List<ActionState> mandatory = List.of(
+            ActionState.CREATE_USER,
+            ActionState.UPDATE_USER,
+            ActionState.DELETE_USER
+        );
+
+        for (ActionState action : mandatory) {
+            sequence.add(action);
+            simulate(action, model);
+        }
+
+        for (int i = mandatory.size(); i < length; i++) {
             ActionState action;
 
             if (model.size() == 0) {
@@ -24,7 +35,6 @@ public class TestGenerator {
             }
 
             sequence.add(action);
-
             simulate(action, model);
         }
 
