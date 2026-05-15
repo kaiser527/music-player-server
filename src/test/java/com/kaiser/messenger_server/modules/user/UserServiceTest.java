@@ -220,12 +220,11 @@ public class UserServiceTest {
                     case UPDATE_USER:
                         UpdateUserRequest updateRequest = TestDataGenerator.randomUpdateRequest(USER_ROLE);
 
-                        String existingId = model.randomUser();
-
+                        String existingId = model.size() == 0 ? null : model.randomUser();
                         String idUpdate =
-                        existingId != null && ThreadLocalRandom.current().nextInt(100) < 20
-                            ? existingId
-                            : "invalid-" + TestDataGenerator.randomUserId();
+                            existingId != null && ThreadLocalRandom.current().nextInt(100) < 70
+                                ? existingId
+                                : "invalid-" + TestDataGenerator.randomUserId();
 
                         boolean existsUpdate = model.userExists(idUpdate);
 
@@ -295,12 +294,11 @@ public class UserServiceTest {
                         break;
 
                     case DELETE_USER:
-                        String deletingId = model.randomUser();
-
+                        String deletingId =model.size() == 0 ? null : model.randomUser();
                         String idDelete =
-                        deletingId != null && ThreadLocalRandom.current().nextInt(100) < 20
-                            ? deletingId
-                            : "invalid-" + TestDataGenerator.randomUserId();
+                            deletingId != null && ThreadLocalRandom.current().nextInt(100) < 70
+                                ? deletingId
+                                : "invalid-" + TestDataGenerator.randomUserId();
 
                         boolean existsDelete = model.userExists(idDelete);
 
