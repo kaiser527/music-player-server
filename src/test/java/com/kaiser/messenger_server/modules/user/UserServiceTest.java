@@ -222,7 +222,7 @@ public class UserServiceTest {
 
                         String existingId = model.size() == 0 ? null : model.randomUser();
                         String idUpdate =
-                            existingId != null && ThreadLocalRandom.current().nextInt(100) < 70
+                            existingId != null && ThreadLocalRandom.current().nextInt(100) < 80
                                 ? existingId
                                 : "invalid-" + TestDataGenerator.randomUserId();
 
@@ -294,9 +294,9 @@ public class UserServiceTest {
                         break;
 
                     case DELETE_USER:
-                        String deletingId =model.size() == 0 ? null : model.randomUser();
+                        String deletingId = model.size() == 0 ? null : model.randomUser();
                         String idDelete =
-                            deletingId != null && ThreadLocalRandom.current().nextInt(100) < 70
+                            deletingId != null && ThreadLocalRandom.current().nextInt(100) < 80
                                 ? deletingId
                                 : "invalid-" + TestDataGenerator.randomUserId();
 
