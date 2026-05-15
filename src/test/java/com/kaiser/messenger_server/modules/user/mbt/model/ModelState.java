@@ -10,7 +10,6 @@ public class ModelState {
     private final Map<String, UserModel> users = new HashMap<>();
 
     public String randomUser() {
-
         if (users.isEmpty()) {
             return null;
         }

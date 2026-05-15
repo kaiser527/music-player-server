@@ -13,7 +13,7 @@ public class TestDataGenerator {
     }
 
     public static CreateUserRequest randomCreateRequest(String roleId, ModelState model) {
-        boolean reuseEmail = ThreadLocalRandom.current().nextBoolean();
+        boolean reuseEmail = ThreadLocalRandom.current().nextInt(100) < 20;
 
         String email;
 
@@ -46,7 +46,9 @@ public class TestDataGenerator {
                 .username("updated_" + rand)
                 .image("img_" + rand + ".png")
                 .accountType(
-                    ThreadLocalRandom.current().nextBoolean() ? AccountType.LOCAL : AccountType.GOOGLE
+                    ThreadLocalRandom.current().nextInt(100) < 80 
+                        ? AccountType.LOCAL 
+                        : AccountType.GOOGLE
                 )
                 .isActive(true)
                 .roleId(roleId)
