@@ -47,8 +47,8 @@ public class TestDataGenerator {
                 .image("img_" + rand + ".png")
                 .accountType(
                     ThreadLocalRandom.current().nextInt(100) < 70 
-                        ? AccountType.LOCAL 
-                        : AccountType.GOOGLE
+                        ? AccountType.GOOGLE 
+                        : AccountType.LOCAL
                 )
                 .isActive(true)
                 .roleId(roleId)
