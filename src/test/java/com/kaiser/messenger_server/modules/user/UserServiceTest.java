@@ -112,15 +112,6 @@ public class UserServiceTest {
         when(roleRepository.findById(ADMIN_ROLE))
             .thenReturn(Optional.of(adminRole));
 
-        when(userRepository.save(any()))
-            .thenAnswer(inv -> {
-                User u = inv.getArgument(0);
-                if (u.getId() == null) {
-                    u.setId(TestDataGenerator.randomUserId());
-                }
-                return u;
-            });
-
         // ---------- AUTOMATED TEST GENERATION ----------
         for (int run = 1; run <= 5; run++) {
             ModelState generatorModel = new ModelState();
