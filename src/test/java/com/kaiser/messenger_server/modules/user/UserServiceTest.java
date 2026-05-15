@@ -65,6 +65,15 @@ public class UserServiceTest {
         when(securityContext.getAuthentication()).thenReturn(authentication);
 
         SecurityContextHolder.setContext(securityContext);
+
+        when(userRepository.save(any()))
+            .thenAnswer(inv -> {
+                User u = inv.getArgument(0);
+                if (u.getId() == null) {
+                    u.setId(TestDataGenerator.randomUserId());
+                }
+                return u;
+        });
     }
 
     User buildUser(String id, String email, Role role) {
@@ -213,7 +222,7 @@ public class UserServiceTest {
 
                         String existingId = model.size() == 0 ? null : model.randomUser();
                         String idUpdate =
-                            existingId != null && ThreadLocalRandom.current().nextInt(100) < 80
+                            existingId != null && ThreadLocalRandom.current().nextInt(100) < 70
                                 ? existingId
                                 : "invalid-" + TestDataGenerator.randomUserId();
 
@@ -287,7 +296,7 @@ public class UserServiceTest {
                     case DELETE_USER:
                         String deletingId = model.size() == 0 ? null : model.randomUser();
                         String idDelete =
-                            deletingId != null && ThreadLocalRandom.current().nextInt(100) < 80
+                            deletingId != null && ThreadLocalRandom.current().nextInt(100) < 70
                                 ? deletingId
                                 : "invalid-" + TestDataGenerator.randomUserId();
 
